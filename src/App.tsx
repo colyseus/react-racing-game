@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import { useState } from 'react'
 import { Layers } from 'three'
 import { Canvas } from '@react-three/fiber'
 import { Physics, Debug } from '@react-three/cannon'
@@ -9,11 +9,10 @@ import type { DirectionalLight } from 'three'
 import { HideMouse, Keyboard } from './controls'
 import { Cameras } from './effects'
 import { BoundingBox, Ramp, Track, Vehicle, Goal, Train, Heightmap } from './models'
-import { angularVelocity, levelLayer, position, rotation, useStore } from './store'
+import { angularVelocity, levelLayer, rotation, useStore } from './store'
 import { Checkpoint, Clock, Speed, Minimap, Intro, Help, Editor, LeaderBoard, Finished, PickColor } from './ui'
 import { useToggle } from './useToggle'
-import {Room} from "colyseus.js";
-import {getGameRoom} from "./network";
+import { players } from './network'
 
 const layers = new Layers()
 layers.enable(levelLayer)
@@ -30,20 +29,6 @@ export function App(): JSX.Element {
   const ToggledMap = useToggle(Minimap, 'map')
   const ToggledOrbitControls = useToggle(OrbitControls, 'editor')
   const ToggledStats = useToggle(Stats, 'stats')
-
-    const [gameRoom, setGameRoom] = useState<Room>();
-
-    useEffect(() => {
-        const initializeNetwork = async () => {
-            const targetGameRoom = await getGameRoom()
-            console.log(targetGameRoom.id)
-            setGameRoom(targetGameRoom)
-        }
-
-        initializeNetwork()
-    }, [])
-    // const gameRoom = await getGameRoom()
-    // console.log(gameRoom.id)
 
   return (
     <Intro>
@@ -66,16 +51,16 @@ export function App(): JSX.Element {
         />
         <PerspectiveCamera makeDefault={editor} fov={75} position={[0, 20, 20]} />
         <Physics allowSleep broadphase="SAP" defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}>
-          <ToggledDebug scale={1.0001} color="white">
-
-              {gameRoom? (
-
-                  <Vehicle angularVelocity={[...angularVelocity]} position={[...position]} rotation={[...rotation]}>
-                      {light && <primitive object={light.target} />}
-                      <Cameras />
-                  </Vehicle>
-              ): ('')}
-
+            <ToggledDebug scale={1.0001} color="white">
+                {
+                    (Array.from(players().keys()) as string []).map((playerId) => {
+                        const player = players().get(playerId)
+                        return <Vehicle key={playerId.toString()} angularVelocity={[...angularVelocity]} position={[player.x, player.y, player.z]} rotation={[...rotation]}>
+                            {light && <primitive object={light.target} />}
+                            <Cameras />
+                        </Vehicle>
+                    })
+                }
             <Train />
             <Ramp args={[30, 6, 8]} position={[2, -1, 168.55]} rotation={[0, 0.49, Math.PI / 15]} />
             <Heightmap elementSize={0.5085} position={[327 - 66.5, -3.3, -473 + 213]} rotation={[-Math.PI / 2, 0, -Math.PI]} />

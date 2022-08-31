@@ -10,7 +10,18 @@ export class GameRoom extends Room<GameRoomState> {
   }
 
   onJoin (client: Client, options: any) {
-    this.state.racers.set(client.sessionId, new Racer());
+    const newPlayer = new Racer();
+    newPlayer.y = 0.75;
+
+    if(this.state.racers.size == 0) {
+      newPlayer.x = -110;
+      newPlayer.z = 220;
+    } else {
+      newPlayer.x = -113;
+      newPlayer.z = 215;
+    }
+    
+    this.state.racers.set(client.sessionId, newPlayer);
     console.log(client.sessionId, "joined!");
   }
 

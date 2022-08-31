@@ -15,7 +15,7 @@ export const cameras = ['DEFAULT', 'FIRST_PERSON', 'BIRD_EYE'] as const
 export const dpr = 1.5 as const
 export const levelLayer = 1 as const
 export const maxBoost = 100 as const
-export const position = [-110, 0.75, 220] as const
+//export const position = [-110, 0.75, 220] as const
 export const rotation = [0, Math.PI / 2 + 0.35, 0] as const
 
 export const vehicleConfig = {
@@ -196,7 +196,7 @@ const useStoreImpl = create<IState>((set: SetState<IState>, get: GetState<IState
 
       set((state) => {
         state.api?.angularVelocity.set(...angularVelocity)
-        state.api?.position.set(...position)
+        //state.api?.position.set(...position)
         state.api?.rotation.set(...rotation)
         state.api?.velocity.set(0, 0, 0)
 

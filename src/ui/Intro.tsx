@@ -8,10 +8,12 @@ import { useStore } from '../store'
 import { setupSession, unAuthenticateUser } from '../data'
 import { Keys } from './Keys'
 import { Auth } from './Auth'
+import { gameRoom } from '../network'
 
 export function Intro({ children }: { children: ReactNode }): JSX.Element {
   const [clicked, setClicked] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [ready, setReady] = useState(false)
   const { progress } = useProgress()
   const [session, set] = useStore((state) => [state.session, state.set])
 
@@ -27,6 +29,12 @@ export function Intro({ children }: { children: ReactNode }): JSX.Element {
     setupSession(set)
   }, [])
 
+  useEffect(() => {
+    gameRoom.state.racers.onAdd = () => {
+      setReady(gameRoom.state.racers.size == 2)
+    }
+  }, [])
+
   return (
     <>
       <Suspense fallback={null}>{children}</Suspense>
@@ -34,9 +42,15 @@ export function Intro({ children }: { children: ReactNode }): JSX.Element {
         <div className="stack">
           <div className="intro-keys">
             <Keys style={{ paddingBottom: 20 }} />
-            <a className="start-link" href="#" onClick={() => setClicked(true)}>
-              {loading ? `loading ${progress.toFixed()} %` : 'Click to start'}
-            </a>
+            <p>
+              { loading ?
+                `loading ${progress.toFixed()} %` :
+                ( ready ?
+                    (<a className="start-link" href="#" onClick={() => setClicked(true)}>{ 'Click to start'}</a>):
+                    ('Waiting for another player...'))
+              }
+            </p>
+
           </div>
           {session?.user?.aud !== 'authenticated' ? (
             <Auth />
