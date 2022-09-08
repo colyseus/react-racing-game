@@ -10,10 +10,15 @@ useGLTF.preload('/models/track-draco.glb')
 useGLTF.preload('/models/chassis-draco.glb')
 useGLTF.preload('/models/wheel-draco.glb')
 
+const defaultStyle = { color: 'green', paddingLeft: '2%' }
+const errorStyle = { color: 'red', paddingLeft: '2%' }
 
 const root = createRoot(document.getElementById('root')!)
 
-root.render(<h3>Initializing network...</h3>)
+root.render(
+    <div style={defaultStyle}>
+        <h2>Initializing network...</h2>
+    </div>)
 
 initializeNetwork()
     .then(() => {
@@ -21,4 +26,9 @@ initializeNetwork()
     })
     .catch(e => {
         console.error(e)
+        root.render(
+            <div style={errorStyle}>
+                <h2>Network failure!</h2>
+                <h3>Is your server running?</h3>
+            </div>)
     })

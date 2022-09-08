@@ -30,9 +30,13 @@ export function Intro({ children }: { children: ReactNode }): JSX.Element {
   }, [])
 
   useEffect(() => {
-    gameRoom.state.racers.onAdd = () => {
-      setReady(gameRoom.state.racers.size == 2)
-    }
+    gameRoom.state.players.onAdd(() => {
+      setReady(gameRoom.state.players.size == 2)
+    })
+
+    gameRoom.state.players.onRemove(() => {
+      setReady(gameRoom.state.players.size == 2)
+    })
   }, [])
 
   return (

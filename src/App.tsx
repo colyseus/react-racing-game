@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Layers } from 'three'
+import {Layers, Vector3} from 'three'
 import { Canvas } from '@react-three/fiber'
 import { Physics, Debug } from '@react-three/cannon'
 import { Sky, Environment, PerspectiveCamera, OrbitControls, Stats } from '@react-three/drei'
@@ -12,7 +12,10 @@ import { BoundingBox, Ramp, Track, Vehicle, Goal, Train, Heightmap } from './mod
 import { angularVelocity, levelLayer, rotation, useStore } from './store'
 import { Checkpoint, Clock, Speed, Minimap, Intro, Help, Editor, LeaderBoard, Finished, PickColor } from './ui'
 import { useToggle } from './useToggle'
-import { players } from './network'
+import {mainPlayerId, players} from './network'
+import {VehicleAnimator} from "./models/vehicle/VehicleAnimator";
+import {Player} from "./GameRoomState";
+import {VehicleAnim} from "./models/vehicle/VehicleAnim";
 
 const layers = new Layers()
 layers.enable(levelLayer)
@@ -54,11 +57,24 @@ export function App(): JSX.Element {
             <ToggledDebug scale={1.0001} color="white">
                 {
                     (Array.from(players().keys()) as string []).map((playerId) => {
-                        const player = players().get(playerId)
-                        return <Vehicle key={playerId.toString()} angularVelocity={[...angularVelocity]} position={[player.x, player.y, player.z]} rotation={[...rotation]}>
-                            {light && <primitive object={light.target} />}
-                            <Cameras />
-                        </Vehicle>
+                        const player: Player = players().get(playerId)
+                        console.log(player.position.toJSON())
+                        if(playerId === mainPlayerId) {
+                            return <Vehicle
+                                key={playerId}
+                                angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
+                                position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}
+                                rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
+                                {light && <primitive object={light.target} />}
+                                <Cameras />
+                            </Vehicle>
+                        }
+                        return <VehicleAnim key={playerId}
+                                            playerId={playerId}
+                                            angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
+                                            position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}
+                                            rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
+                        </VehicleAnim>
                     })
                 }
             <Train />

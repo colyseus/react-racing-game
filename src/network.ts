@@ -1,16 +1,17 @@
 import type { Room } from 'colyseus.js'
 import { Client } from 'colyseus.js'
-import {MapSchema} from "@colyseus/schema";
-import {Racer} from "./GameRoomState";
 
 const COLYSEUS_HOST = 'ws://localhost:2567'
 const GAME_ROOM  =  'game_room'
 
 export const client: Client = new Client(COLYSEUS_HOST)
 export let gameRoom: Room
+export let mainPlayerId: string
+
 
 export const joinGame = async () => {
     gameRoom = await client.joinOrCreate(GAME_ROOM)
+    mainPlayerId = gameRoom.sessionId
 }
 
 export const initializeNetwork = async () => {
@@ -19,14 +20,7 @@ export const initializeNetwork = async () => {
     }
 }
 
-export const gameReady = (): boolean => {
-    return (gameRoom.state.racers as MapSchema<Racer>).size == 2
-}
-
 export const players = () => {
-    return gameRoom.state.racers
+    return gameRoom.state.players
 }
 
-export const sendPlayerPosition = async (targetPosition: any) => {
-    gameRoom.send('positionUpdate', targetPosition)
-}

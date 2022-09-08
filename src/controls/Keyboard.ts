@@ -4,7 +4,7 @@ import { isControl, useStore } from '../store'
 import type { BindableActionName } from '../store'
 
 export function Keyboard() {
-  const [actionInputMap, actions, binding] = useStore(({ actionInputMap, actions, binding }) => [actionInputMap, actions, binding])
+  const [actions, actionInputMap, binding] = useStore(({ actions, actionInputMap, binding }) => [actions, actionInputMap, binding])
 
   useEffect(() => {
     if (binding) return
