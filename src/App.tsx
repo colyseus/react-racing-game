@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import {Layers, Vector3} from 'three'
+import {Layers} from 'three'
 import { Canvas } from '@react-three/fiber'
 import { Physics, Debug } from '@react-three/cannon'
 import { Sky, Environment, PerspectiveCamera, OrbitControls, Stats } from '@react-three/drei'
@@ -9,13 +9,12 @@ import type { DirectionalLight } from 'three'
 import { HideMouse, Keyboard } from './controls'
 import { Cameras } from './effects'
 import { BoundingBox, Ramp, Track, Vehicle, Goal, Train, Heightmap } from './models'
-import { angularVelocity, levelLayer, rotation, useStore } from './store'
+import { levelLayer, useStore } from './store'
 import { Checkpoint, Clock, Speed, Minimap, Intro, Help, Editor, LeaderBoard, Finished, PickColor } from './ui'
 import { useToggle } from './useToggle'
 import {mainPlayerId, players} from './network'
-import {VehicleAnimator} from "./models/vehicle/VehicleAnimator";
-import {Player} from "./GameRoomState";
-import {VehicleAnim} from "./models/vehicle/VehicleAnim";
+import {VehicleAnimator} from './models/vehicle/VehicleAnimator'
+import type {Player} from './GameRoomState'
 
 const layers = new Layers()
 layers.enable(levelLayer)
@@ -55,10 +54,16 @@ export function App(): JSX.Element {
         <PerspectiveCamera makeDefault={editor} fov={75} position={[0, 20, 20]} />
         <Physics allowSleep broadphase="SAP" defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}>
             <ToggledDebug scale={1.0001} color="white">
+                {/*<Vehicle*/}
+                {/*    angularVelocity={[0,0,0]}*/}
+                {/*    position={[-110, 0.75, 220]}*/}
+                {/*    rotation={[0, 0, 0]}>*/}
+                {/*    {light && <primitive object={light.target} />}*/}
+                {/*    <Cameras />*/}
+                {/*</Vehicle>*/}
                 {
                     (Array.from(players().keys()) as string []).map((playerId) => {
                         const player: Player = players().get(playerId)
-                        console.log(player.position.toJSON())
                         if(playerId === mainPlayerId) {
                             return <Vehicle
                                 key={playerId}
@@ -69,12 +74,16 @@ export function App(): JSX.Element {
                                 <Cameras />
                             </Vehicle>
                         }
-                        return <VehicleAnim key={playerId}
-                                            playerId={playerId}
-                                            angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
-                                            position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}
-                                            rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
-                        </VehicleAnim>
+                        return <VehicleAnimator
+                            key={playerId}
+                            playerId={playerId}
+                            angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
+                            position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}
+                            // position={[-110, 0.75, 218]}
+                            rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
+                            {light && <primitive object={light.target} />}
+
+                        </VehicleAnimator>
                     })
                 }
             <Train />

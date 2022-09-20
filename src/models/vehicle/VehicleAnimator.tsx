@@ -7,29 +7,23 @@ import type { PropsWithChildren } from 'react'
 import type { BoxProps, RaycastVehicleProps, WheelInfoOptions } from '@react-three/cannon'
 
 import { AccelerateAudio, BoostAudio, Boost, BrakeAudio, Dust, EngineAudio, HonkAudio, Skid } from '../../effects'
-import {angularVelocity, getState, mutation, useStore} from '../../store'
-import { useToggle } from '../../useToggle'
-import { Chassis } from './Chassis'
+import { getState, mutation, useStore } from '../../store'
 import { Wheel } from './Wheel'
 
 import type { Camera, Controls, WheelInfo } from '../../store'
-import type {Player} from '../../GameRoomState'
-import {gameRoom} from '../../network'
+import {players} from "../../network";
+import {ChassisAnimator} from "./ChassisAnimator";
 
 const { lerp } = MathUtils
 const v = new Vector3()
 
-// type VehicleProps = PropsWithChildren<Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'>>
-
-type Props = PropsWithChildren<any>
 type DerivedWheelInfo = WheelInfo & Required<Pick<WheelInfoOptions, 'chassisConnectionPointLocal' | 'isFrontWheel'>>
 
-export function VehicleAnimator(props: Props) {
-    const {playerId, children} = props
+export function VehicleAnimator(props: any) {
     const defaultCamera = useThree((state) => state.camera)
+    const { playerId, angularVelocity, children, position, rotation } = props
     const [chassisBody, vehicleConfig, wheelInfo, wheels] = useStore((s) => [s.chassisBody, s.vehicleConfig, s.wheelInfo, s.wheels])
     const { back, force, front, height, maxBrake, steer, maxSpeed, width } = vehicleConfig
-
 
     const wheelInfos = wheels.map((_, index): DerivedWheelInfo => {
         const length = index < 2 ? front : back
@@ -51,58 +45,41 @@ export function VehicleAnimator(props: Props) {
 
     useLayoutEffect(() => api.sliding.subscribe((sliding) => (mutation.sliding = sliding)), [api])
 
-    // let camera: Camera
-    let editor: boolean
-    let controls: Controls
-    let engineValue = 0
-    let i = 0
-    let isBoosting = false
-    let speed = 0
-    let steeringValue = 0
-    const swaySpeed = 0
-    const swayTarget = 0
-    const swayValue = 0
+    const player = players().get(playerId)
 
-    const player: Player = gameRoom.state.players.get(playerId)
-    
-    const angularVelocity = new Vector3(player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z)
-    const position: Vector3 = new Vector3(player.position.x, player.position.y, player.position.z)
-    const rotation: Vector3 = new Vector3(player.rotation.x, player.rotation.y, player.rotation.z)
-    
+    let camera: Camera
+    let editor: boolean = false
+    let engineValue = player.movement.engineValue
+    let i = 0
+    let isBoosting = player.movement.isBoosting
+    let speed = player.movement.speed
+    let steeringValue = player.movement.steeringValue
+    let swaySpeed = player.movement.swaySpeed
+    let swayTarget = player.movement.swayTarget
+    let swayValue = player.movement.swayValue
+
     useFrame((state, delta) => {
-        // camera = getState().camera
-        // controls = getState().controls
-        // speed = mutation.speed
+        camera = getState().camera
         speed = player.movement.speed
+
+        // isBoosting = player.movement.isBoosting
+
+        // if (isBoosting) {
+        //     mutation.boost = Math.max(mutation.boost - 1, 0)
+        // }
+
         engineValue = player.movement.engineValue
         steeringValue = player.movement.steeringValue
-
-        angularVelocity.set(player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z)
-        position.set(player.position.x, player.position.y, player.position.z)
-        rotation.set(player.rotation.x, player.rotation.y, player.rotation.z)
-        
-        isBoosting = player.movement.boost && player.movement.boostValue > 0 // controls.boost && mutation.boost > 0
-
-        if (isBoosting) {
-            player.movement.boostValue = Math.max(player.movement.boostValue - 1, 0)
-        }
-
-        // engineValue = lerp(
-        //     engineValue,
-        //     controls.forward || controls.backward ? force * (controls.forward && !controls.backward ? (isBoosting ? -1.5 : -1) : 1) : 0,
-        //     delta * 20,
-        // )
-        // steeringValue = lerp(steeringValue, controls.left || controls.right ? steer * (controls.left && !controls.right ? 1 : -1) : 0, delta * 20)
         for (i = 2; i < 4; i++) api.applyEngineForce(speed < maxSpeed ? engineValue : 0, i)
         for (i = 0; i < 2; i++) api.setSteeringValue(steeringValue, i)
-        for (i = 2; i < 4; i++) api.setBrake(player.movement.break ? (controls.forward ? maxBrake / 1.5 : maxBrake) : 0, i)
+        for (i = 2; i < 4; i++) api.setBrake(player.movement.brake ? (player.movement.forward ? maxBrake / 1.5 : maxBrake) : 0, i)
 
         if (!editor) {
-            // if (camera === 'FIRST_PERSON') {
-            //     v.set(0.3 + (Math.sin(-steeringValue) * speed) / 30, 0.4, -0.1)
-            // } else if (camera === 'DEFAULT') {
-            //     v.set((Math.sin(steeringValue) * speed) / 2.5, 1.25 + (engineValue / 1000) * -0.5, -5 - speed / 15 + (controls.brake ? 1 : 0))
-            // }
+            if (camera === 'FIRST_PERSON') {
+                v.set(0.3 + (Math.sin(-steeringValue) * speed) / 30, 0.4, -0.1)
+            } else if (camera === 'DEFAULT') {
+                v.set((Math.sin(steeringValue) * speed) / 2.5, 1.25 + (engineValue / 1000) * -0.5, -5 - speed / 15 + (player.movement.brake ? 1 : 0))
+            }
 
             // ctrl.left-ctrl.right, up-down, near-far
             // defaultCamera.position.lerp(v, delta)
@@ -110,7 +87,7 @@ export function VehicleAnimator(props: Props) {
             // ctrl.left-ctrl.right swivel
             // defaultCamera.rotation.z = lerp(
             //     defaultCamera.rotation.z,
-            //     (camera !== 'BIRD_EYE' ? 0s : Math.PI) + (-steeringValue * speed) / (camera === 'DEFAULT' ? 40 : 60),
+            //     (camera !== 'BIRD_EYE' ? 0 : Math.PI) + (-steeringValue * speed) / (camera === 'DEFAULT' ? 40 : 60),
             //     delta,
             // )
         }
@@ -119,15 +96,15 @@ export function VehicleAnimator(props: Props) {
         chassisBody.current!.children[0].rotation.z = MathUtils.lerp(chassisBody.current!.children[0].rotation.z, (-steeringValue * speed) / 200, delta * 4)
 
         // Camera sway
-        // swaySpeed = isBoosting ? 60 : 30
-        // swayTarget = isBoosting ? (speed / maxSpeed) * 8 : (speed / maxSpeed) * 2
-        // swayValue = isBoosting ? (speed / maxSpeed + 0.25) * 30 : MathUtils.lerp(swayValue, swayTarget, delta * (isBoosting ? 10 : 20))
-        // defaultCamera.rotation.z += (Math.sin(state.clock.elapsedTime * swaySpeed * 0.9) / 1000) * swayValue
-        // defaultCamera.rotation.x += (Math.sin(state.clock.elapsedTime * swaySpeed) / 1000) * swayValue
+        swaySpeed = player.movement.swaySpeed
+        swayTarget = player.movement.swayTarget
+        swayValue = player.movement.swayValue
+        defaultCamera.rotation.z += (Math.sin(state.clock.elapsedTime * swaySpeed * 0.9) / 1000) * swayValue
+        defaultCamera.rotation.x += (Math.sin(state.clock.elapsedTime * swaySpeed) / 1000) * swayValue
 
         // Vibrations
-        // chassisBody.current!.children[0].rotation.x = (Math.sin(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
-        // chassisBody.current!.children[0].rotation.z = (Math.cos(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
+        chassisBody.current!.children[0].rotation.x = (Math.sin(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
+        chassisBody.current!.children[0].rotation.z = (Math.cos(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
     })
 
     // const ToggledAccelerateAudio = useToggle(AccelerateAudio, ['ready', 'sound'])
@@ -135,22 +112,22 @@ export function VehicleAnimator(props: Props) {
 
     return (
         <group>
-            <Chassis ref={chassisBody} {...{...angularVelocity, ...position, ...rotation }}>
+            <ChassisAnimator ref={chassisBody} {...{ angularVelocity, position, rotation }}>
                 {/*<ToggledAccelerateAudio />*/}
-                {/*<BoostAudio />*/}
-                {/*<BrakeAudio />*/}
+                <BoostAudio />
+                <BrakeAudio />
                 {/*<ToggledEngineAudio />*/}
-                {/*<HonkAudio />*/}
-                {/*<Boost />*/}
+                <HonkAudio />
+                <Boost />
                 {children}
-            </Chassis>
+            </ChassisAnimator>
             <>
                 {wheels.map((wheel, index) => (
                     <Wheel ref={wheel} leftSide={!(index % 2)} key={index} />
                 ))}
             </>
-            {/*<Dust />*/}
-            {/*<Skid />*/}
+            <Dust />
+            <Skid />
         </group>
     )
 }

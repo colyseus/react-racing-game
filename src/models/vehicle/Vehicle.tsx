@@ -1,7 +1,7 @@
-import { MathUtils, Vector3 } from 'three'
-import { useLayoutEffect } from 'react'
+import {Group, MathUtils, Vector3} from 'three'
+import {useLayoutEffect, useRef} from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useRaycastVehicle } from '@react-three/cannon'
+import {useBox, useRaycastVehicle} from '@react-three/cannon'
 
 import type { PropsWithChildren } from 'react'
 import type { BoxProps, RaycastVehicleProps, WheelInfoOptions } from '@react-three/cannon'
@@ -13,15 +13,17 @@ import { Chassis } from './Chassis'
 import { Wheel } from './Wheel'
 
 import type { Camera, Controls, WheelInfo } from '../../store'
+import { gameRoom } from '../../network';
 
 const { lerp } = MathUtils
 const v = new Vector3()
 
-type VehicleProps = PropsWithChildren<Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'>>
+// type VehicleProps = PropsWithChildren<Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'>>
 type DerivedWheelInfo = WheelInfo & Required<Pick<WheelInfoOptions, 'chassisConnectionPointLocal' | 'isFrontWheel'>>
 
-export function Vehicle({ angularVelocity, children, position, rotation }: VehicleProps) {
+export function Vehicle(props: any) {
   const defaultCamera = useThree((state) => state.camera)
+  const {angularVelocity, children, position, rotation} = props
   const [chassisBody, vehicleConfig, wheelInfo, wheels] = useStore((s) => [s.chassisBody, s.vehicleConfig, s.wheelInfo, s.wheels])
   const { back, force, front, height, maxBrake, steer, maxSpeed, width } = vehicleConfig
 
@@ -40,7 +42,6 @@ export function Vehicle({ angularVelocity, children, position, rotation }: Vehic
     wheels,
     wheelInfos,
   }
-
   const [, api] = useRaycastVehicle(() => raycast, null, [wheelInfo])
 
   useLayoutEffect(() => api.sliding.subscribe((sliding) => (mutation.sliding = sliding)), [api])
@@ -75,6 +76,7 @@ export function Vehicle({ angularVelocity, children, position, rotation }: Vehic
       delta * 20,
     )
     steeringValue = lerp(steeringValue, controls.left || controls.right ? steer * (controls.left && !controls.right ? 1 : -1) : 0, delta * 20)
+
     for (i = 2; i < 4; i++) api.applyEngineForce(speed < maxSpeed ? engineValue : 0, i)
     for (i = 0; i < 2; i++) api.setSteeringValue(steeringValue, i)
     for (i = 2; i < 4; i++) api.setBrake(controls.brake ? (controls.forward ? maxBrake / 1.5 : maxBrake) : 0, i)
@@ -110,6 +112,25 @@ export function Vehicle({ angularVelocity, children, position, rotation }: Vehic
     // Vibrations
     chassisBody.current!.children[0].rotation.x = (Math.sin(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
     chassisBody.current!.children[0].rotation.z = (Math.cos(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
+
+    gameRoom.send('frameData', {
+      'boost': isBoosting,
+      'boostValue': mutation.boost,
+      'brake': controls.brake,
+      'engineValue': engineValue,
+      'forward': controls.forward,
+      'speed': speed,
+      'steeringValue': steeringValue,
+      'swaySpeed': swaySpeed,
+      'swayTarget': swayTarget,
+      'swayValue': swayValue
+    })
+
+    // gameRoom.send('positioning', {
+    //   'angularVelocity': {x: angularVelocity[0], y: angularVelocity[1], z: angularVelocity[2]},
+    //   'position': {x: position[0], y: position[1], z: position[2]},
+    //   'rotation': {x: rotation[0], y: rotation[1], z: rotation[2]}
+    // })
   })
 
   const ToggledAccelerateAudio = useToggle(AccelerateAudio, ['ready', 'sound'])

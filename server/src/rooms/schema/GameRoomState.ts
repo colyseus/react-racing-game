@@ -10,6 +10,10 @@ export class Vector3 extends Schema {
   @type("number")
   z = 0;
 
+  getValues = () => {
+    return [this.x, this.y, this.z];
+  }
+
   setValues = (x_:number, y_:number, z_:number) => {
     this.x = x_;
     this.y = y_;
@@ -29,10 +33,10 @@ export class Vector3 extends Schema {
 
 export class Movement extends Schema {
   @type("boolean")
-  break = false;
+  brake = false;
 
   @type("boolean")
-  boost = false;
+  isBoosting = false;
 
   @type("number")
   boostValue = 100;
@@ -40,11 +44,23 @@ export class Movement extends Schema {
   @type("number")
   engineValue = 0;
 
+  @type("boolean")
+  forward = false;
+
   @type("number")
   steeringValue = 0;
 
   @type("number")
   speed = 0;
+
+  @type("number")
+  swaySpeed = 0;
+
+  @type("number")
+  swayTarget = 0;
+
+  @type("number")
+  swayValue = 0;
 }
 
 
