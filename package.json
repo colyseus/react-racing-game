@@ -24,7 +24,7 @@
     "three": "^0.139.0",
     "use-asset": "^1.0.4",
     "zustand": "^3.7.0",
-    "colyseus.js": "^0.15.0-preview.5"
+    "colyseus.js": "^0.14.13"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.6",

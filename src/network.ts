@@ -7,11 +7,14 @@ const GAME_ROOM  =  'game_room'
 export const client: Client = new Client(COLYSEUS_HOST)
 export let gameRoom: Room
 export let mainPlayerId: string
-
+export let maxPlayerCount = 20
 
 export const joinGame = async () => {
     gameRoom = await client.joinOrCreate(GAME_ROOM)
     mainPlayerId = gameRoom.sessionId
+    gameRoom.onMessage('config', data => {
+        maxPlayerCount = data['maxPlayerCount']
+    })
 }
 
 export const initializeNetwork = async () => {
@@ -20,7 +23,9 @@ export const initializeNetwork = async () => {
     }
 }
 
-export const players = () => {
+export const getPlayers = () => {
     return gameRoom.state.players
 }
+
+
 

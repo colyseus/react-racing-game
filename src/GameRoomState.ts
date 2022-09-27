@@ -45,7 +45,7 @@ export class Movement extends Schema {
   engineValue = 0;
 
   @type("boolean")
-  forward = 0;
+  forward = false;
 
   @type("number")
   steeringValue = 0;
@@ -76,17 +76,10 @@ export class Player extends Schema {
 
   @type(Vector3)
   rotation: Vector3 = new Vector3();
-
-  @type(Vector3)
-  spawnPosition: Vector3 = new Vector3();
-
 }
 
 export class GameRoomState extends Schema {
 
   @type({map: Player})
   players = new MapSchema<Player>();
-
-  @type(Vector3)
-  nextSpawnPosition = new Vector3();
 }

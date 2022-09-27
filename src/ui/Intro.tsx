@@ -8,12 +8,10 @@ import { useStore } from '../store'
 import { setupSession, unAuthenticateUser } from '../data'
 import { Keys } from './Keys'
 import { Auth } from './Auth'
-import { gameRoom } from '../network'
 
 export function Intro({ children }: { children: ReactNode }): JSX.Element {
   const [clicked, setClicked] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [ready, setReady] = useState(false)
   const { progress } = useProgress()
   const [session, set] = useStore((state) => [state.session, state.set])
 
@@ -29,16 +27,6 @@ export function Intro({ children }: { children: ReactNode }): JSX.Element {
     setupSession(set)
   }, [])
 
-  useEffect(() => {
-    gameRoom.state.players.onAdd(() => {
-      setReady(gameRoom.state.players.size == 2)
-    })
-
-    gameRoom.state.players.onRemove(() => {
-      setReady(gameRoom.state.players.size == 2)
-    })
-  }, [])
-
   return (
     <>
       <Suspense fallback={null}>{children}</Suspense>
@@ -48,10 +36,8 @@ export function Intro({ children }: { children: ReactNode }): JSX.Element {
             <Keys style={{ paddingBottom: 20 }} />
             <p>
               { loading ?
-                `loading ${progress.toFixed()} %` :
-                ( ready ?
-                    (<a className="start-link" href="#" onClick={() => setClicked(true)}>{ 'Click to start'}</a>):
-                    ('Waiting for another player...'))
+                  `loading ${progress.toFixed()} %` :
+                  (<a className="start-link" href="#" onClick={() => setClicked(true)}>{ 'Click to start'}</a>)
               }
             </p>
 

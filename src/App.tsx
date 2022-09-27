@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import React, {useEffect, useLayoutEffect, useState} from 'react'
+import * as ReactDOM from 'react-dom'
 import {Layers} from 'three'
-import { Canvas } from '@react-three/fiber'
+import {Canvas, events, render} from '@react-three/fiber'
 import { Physics, Debug } from '@react-three/cannon'
 import { Sky, Environment, PerspectiveCamera, OrbitControls, Stats } from '@react-three/drei'
 
@@ -12,9 +13,17 @@ import { BoundingBox, Ramp, Track, Vehicle, Goal, Train, Heightmap } from './mod
 import { levelLayer, useStore } from './store'
 import { Checkpoint, Clock, Speed, Minimap, Intro, Help, Editor, LeaderBoard, Finished, PickColor } from './ui'
 import { useToggle } from './useToggle'
-import {mainPlayerId, players} from './network'
+import {gameRoom, getPlayers, mainPlayerId, maxPlayerCount} from './network'
 import {VehicleAnimator} from './models/vehicle/VehicleAnimator'
 import type {Player} from './GameRoomState'
+import {createRoot} from "react-dom/client";
+
+interface PlayerSlot {
+    initialized: boolean
+    playerId?: string
+
+    data?: Player
+}
 
 const layers = new Layers()
 layers.enable(levelLayer)
@@ -31,6 +40,60 @@ export function App(): JSX.Element {
   const ToggledMap = useToggle(Minimap, 'map')
   const ToggledOrbitControls = useToggle(OrbitControls, 'editor')
   const ToggledStats = useToggle(Stats, 'stats')
+
+    const [mainPlayer, setMainPlayer] = useState(getPlayers().get(mainPlayerId))
+    const [mainPlayerReady, setMainPlayerReady] = useState(false)
+    const [otherPlayersReady, setOtherPlayersReady] = useState(false)
+    //console.log(getPlayers().get(mainPlayerId))
+
+    const [otherPlayers, setOtherPlayers] = useState([] as PlayerSlot[])
+
+    useLayoutEffect(()=> {
+        // Set empty slots for other players, hoping when bool values are true that they will get rendered
+        if(otherPlayers.length === 0) {
+            let index = 0
+            const _otherPlayers = []
+            while(index < maxPlayerCount - 1) {
+                _otherPlayers[index] = {initialized: false} as PlayerSlot
+                index++
+            }
+            setOtherPlayers(_otherPlayers)
+            setOtherPlayersReady(true)
+        }
+
+        // Place players in an available empty slot upon joining
+        getPlayers().onAdd = (player: Player, playerId: string) => {
+            if(playerId === mainPlayerId) {
+                setMainPlayer(player)
+                setMainPlayerReady(true)
+            } else {
+                for(const index in otherPlayers) {
+                    const playerSlot = otherPlayers[index]
+                    if(!playerSlot.initialized) {
+                        playerSlot.data = player
+                        playerSlot.playerId = playerId
+                        playerSlot.initialized = true
+                        otherPlayers[index] = playerSlot
+                        setOtherPlayers(otherPlayers)
+                        console.log(otherPlayers)
+                        break
+                    }
+                }
+            }
+        }
+
+        // Remove player and empty the player slot
+        getPlayers().onRemove = (player: Player, playerId: string) => {
+            for(const index in otherPlayers) {
+                if(otherPlayers[index].playerId === playerId) {
+                    otherPlayers[index].initialized = false
+                    delete otherPlayers[index].data
+                    delete otherPlayers[index].playerId
+                    break
+                }
+            }
+        }
+    }, [mainPlayer, otherPlayers])
 
   return (
     <Intro>
@@ -54,38 +117,70 @@ export function App(): JSX.Element {
         <PerspectiveCamera makeDefault={editor} fov={75} position={[0, 20, 20]} />
         <Physics allowSleep broadphase="SAP" defaultContactMaterial={{ contactEquationRelaxation: 4, friction: 1e-3 }}>
             <ToggledDebug scale={1.0001} color="white">
-                {/*<Vehicle*/}
-                {/*    angularVelocity={[0,0,0]}*/}
-                {/*    position={[-110, 0.75, 220]}*/}
-                {/*    rotation={[0, 0, 0]}>*/}
-                {/*    {light && <primitive object={light.target} />}*/}
-                {/*    <Cameras />*/}
-                {/*</Vehicle>*/}
                 {
-                    (Array.from(players().keys()) as string []).map((playerId) => {
-                        const player: Player = players().get(playerId)
-                        if(playerId === mainPlayerId) {
-                            return <Vehicle
-                                key={playerId}
-                                angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
-                                position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}
-                                rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
-                                {light && <primitive object={light.target} />}
-                                <Cameras />
-                            </Vehicle>
-                        }
-                        return <VehicleAnimator
-                            key={playerId}
-                            playerId={playerId}
-                            angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
-                            position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}
-                            // position={[-110, 0.75, 218]}
-                            rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
-                            {light && <primitive object={light.target} />}
-
-                        </VehicleAnimator>
-                    })
+                    mainPlayerReady? (<Vehicle
+                        key={mainPlayerId}
+                        angularVelocity={[mainPlayer.angularVelocity.x, mainPlayer.angularVelocity.y, mainPlayer.angularVelocity.z]}
+                        position={[mainPlayer.position.x, mainPlayer.position.y, mainPlayer.position.z]}
+                        rotation={[mainPlayer.rotation.x, mainPlayer.rotation.y, mainPlayer.rotation.z]}>
+                        {light && <primitive object={light.target} />}
+                        <Cameras />
+                    </Vehicle>): ''
                 }
+
+                { otherPlayersReady? (
+                    otherPlayers.map((element) => {
+                        return element.initialized? (
+                            <VehicleAnimator
+                                key={element.playerId}
+                                playerId={element.playerId}
+                                angularVelocity={[element.data!.angularVelocity.x, element.data!.angularVelocity.y, element.data!.angularVelocity.z]}
+                                position={[element.data!.position.x, element.data!.position.y, element.data!.position.z]}
+                                rotation={[element.data!.rotation.x, element.data!.rotation.y, element.data!.rotation.z]}>
+                                {light && <primitive object={light.target} />}
+                            </VehicleAnimator>
+                        ): ('')
+                    })
+                ): ('')}
+
+                {/*{*/}
+                {/*    gameRoom.state.players.onAdd = (player, playerId) => {*/}
+                {/*    }*/}
+                {/*}*/}
+                {/*{players.map(playerId => {*/}
+                {/*    return <Vehicle*/}
+                {/*        key={playerId}*/}
+                {/*        angularVelocity={[0,0,0]}*/}
+                {/*        position={[-110, 0.75, 220]}*/}
+                {/*        rotation={[0, 0, 0]}>*/}
+                {/*        {light && <primitive object={light.target} />}*/}
+                {/*        <Cameras />*/}
+                {/*    </Vehicle>*/}
+                {/*})}*/}
+                {/*{*/}
+                {/*    (Array.from(players().keys()) as string []).map((playerId) => {*/}
+                {/*        const player: Player = players().get(playerId)*/}
+                {/*        if(playerId === mainPlayerId) {*/}
+                {/*            return <Vehicle*/}
+                {/*                key={playerId}*/}
+                {/*                angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}*/}
+                {/*                position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}*/}
+                {/*                rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>*/}
+                {/*                {light && <primitive object={light.target} />}*/}
+                {/*                <Cameras />*/}
+                {/*            </Vehicle>*/}
+                {/*        }*/}
+                {/*        return <VehicleAnimator*/}
+                {/*            key={playerId}*/}
+                {/*            playerId={playerId}*/}
+                {/*            angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}*/}
+                {/*            position={[player.spawnPosition.x, player.spawnPosition.y, player.spawnPosition.z]}*/}
+                {/*            // position={[-110, 0.75, 218]}*/}
+                {/*            rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>*/}
+                {/*            {light && <primitive object={light.target} />}*/}
+                {/*        </VehicleAnimator>*/}
+                {/*    })*/}
+                {/*}*/}
             <Train />
             <Ramp args={[30, 6, 8]} position={[2, -1, 168.55]} rotation={[0, 0.49, Math.PI / 15]} />
             <Heightmap elementSize={0.5085} position={[327 - 66.5, -3.3, -473 + 213]} rotation={[-Math.PI / 2, 0, -Math.PI]} />

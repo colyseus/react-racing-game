@@ -11,7 +11,7 @@ import { getState, mutation, useStore } from '../../store'
 import { Wheel } from './Wheel'
 
 import type { Camera, Controls, WheelInfo } from '../../store'
-import {players} from "../../network";
+import {getPlayers} from "../../network";
 import {ChassisAnimator} from "./ChassisAnimator";
 
 const { lerp } = MathUtils
@@ -45,7 +45,7 @@ export function VehicleAnimator(props: any) {
 
     useLayoutEffect(() => api.sliding.subscribe((sliding) => (mutation.sliding = sliding)), [api])
 
-    const player = players().get(playerId)
+    const player = getPlayers().get(playerId)
 
     let camera: Camera
     let editor: boolean = false
@@ -74,12 +74,12 @@ export function VehicleAnimator(props: any) {
         for (i = 0; i < 2; i++) api.setSteeringValue(steeringValue, i)
         for (i = 2; i < 4; i++) api.setBrake(player.movement.brake ? (player.movement.forward ? maxBrake / 1.5 : maxBrake) : 0, i)
 
-        if (!editor) {
-            if (camera === 'FIRST_PERSON') {
-                v.set(0.3 + (Math.sin(-steeringValue) * speed) / 30, 0.4, -0.1)
-            } else if (camera === 'DEFAULT') {
-                v.set((Math.sin(steeringValue) * speed) / 2.5, 1.25 + (engineValue / 1000) * -0.5, -5 - speed / 15 + (player.movement.brake ? 1 : 0))
-            }
+        // if (!editor) {
+        //     if (camera === 'FIRST_PERSON') {
+        //         v.set(0.3 + (Math.sin(-steeringValue) * speed) / 30, 0.4, -0.1)
+        //     } else if (camera === 'DEFAULT') {
+        //         v.set((Math.sin(steeringValue) * speed) / 2.5, 1.25 + (engineValue / 1000) * -0.5, -5 - speed / 15 + (player.movement.brake ? 1 : 0))
+        //     }
 
             // ctrl.left-ctrl.right, up-down, near-far
             // defaultCamera.position.lerp(v, delta)
@@ -90,14 +90,16 @@ export function VehicleAnimator(props: any) {
             //     (camera !== 'BIRD_EYE' ? 0 : Math.PI) + (-steeringValue * speed) / (camera === 'DEFAULT' ? 40 : 60),
             //     delta,
             // )
-        }
+        // }
 
         // lean chassis
         chassisBody.current!.children[0].rotation.z = MathUtils.lerp(chassisBody.current!.children[0].rotation.z, (-steeringValue * speed) / 200, delta * 4)
+        chassisBody.current!.position.set(player.position.x, player.position.y, player.position.z)
+        chassisBody.current!.children[0].position.set(player.position.x, player.position.y, player.position.z)
 
         // Camera sway
         swaySpeed = player.movement.swaySpeed
-        swayTarget = player.movement.swayTarget
+        // swayTarget = player.movement.swayTarget
         swayValue = player.movement.swayValue
         defaultCamera.rotation.z += (Math.sin(state.clock.elapsedTime * swaySpeed * 0.9) / 1000) * swayValue
         defaultCamera.rotation.x += (Math.sin(state.clock.elapsedTime * swaySpeed) / 1000) * swayValue

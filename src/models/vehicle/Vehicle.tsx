@@ -13,7 +13,7 @@ import { Chassis } from './Chassis'
 import { Wheel } from './Wheel'
 
 import type { Camera, Controls, WheelInfo } from '../../store'
-import { gameRoom } from '../../network';
+import { gameRoom } from '../../network'
 
 const { lerp } = MathUtils
 const v = new Vector3()
@@ -42,7 +42,7 @@ export function Vehicle(props: any) {
     wheels,
     wheelInfos,
   }
-  const [, api] = useRaycastVehicle(() => raycast, null, [wheelInfo])
+  const [ref, api] = useRaycastVehicle(() => raycast, null, [wheelInfo])
 
   useLayoutEffect(() => api.sliding.subscribe((sliding) => (mutation.sliding = sliding)), [api])
 
@@ -113,6 +113,11 @@ export function Vehicle(props: any) {
     chassisBody.current!.children[0].rotation.x = (Math.sin(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
     chassisBody.current!.children[0].rotation.z = (Math.cos(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
 
+    const _position = new Vector3()
+    chassisBody.current!.getWorldPosition(_position)
+
+
+
     gameRoom.send('frameData', {
       'boost': isBoosting,
       'boostValue': mutation.boost,
@@ -123,14 +128,9 @@ export function Vehicle(props: any) {
       'steeringValue': steeringValue,
       'swaySpeed': swaySpeed,
       'swayTarget': swayTarget,
-      'swayValue': swayValue
+      'swayValue': swayValue,
+      'position': { x: _position.x, y: _position.y, z: _position.z }
     })
-
-    // gameRoom.send('positioning', {
-    //   'angularVelocity': {x: angularVelocity[0], y: angularVelocity[1], z: angularVelocity[2]},
-    //   'position': {x: position[0], y: position[1], z: position[2]},
-    //   'rotation': {x: rotation[0], y: rotation[1], z: rotation[2]}
-    // })
   })
 
   const ToggledAccelerateAudio = useToggle(AccelerateAudio, ['ready', 'sound'])

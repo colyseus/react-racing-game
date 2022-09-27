@@ -86,7 +86,7 @@ export const Chassis = forwardRef<Group, PropsWithChildren<BoxProps>>(({ args = 
     [],
   )
 
-  const [, api] = useBox(() => ({ mass, args, allowSleep: false, onCollide, ...props }), ref)
+  const [ ,api] = useBox(() => ({ mass, args, allowSleep: false, ...props }), ref)
 
   useEffect(() => {
     setState({ api })
@@ -107,7 +107,6 @@ export const Chassis = forwardRef<Group, PropsWithChildren<BoxProps>>(({ args = 
   let camera: Camera
   let controls: Controls
   useFrame((_, delta) => {
-
     camera = getState().camera
     controls = getState().controls
     brake.current.material.color.lerp(c.set(controls.brake ? '#555' : 'white'), delta * 10)
