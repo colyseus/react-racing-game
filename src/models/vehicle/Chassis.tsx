@@ -86,7 +86,7 @@ export const Chassis = forwardRef<Group, PropsWithChildren<BoxProps>>(({ args = 
     [],
   )
 
-  const [ ,api] = useBox(() => ({ mass, args, allowSleep: false, ...props }), ref)
+  const [ ,api] = useBox(() => ({ mass, args, allowSleep: false, onCollide,  ...props }), ref)
 
   useEffect(() => {
     setState({ api })

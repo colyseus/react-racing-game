@@ -41,17 +41,17 @@ export const ChassisAnimator = forwardRef<Group, PropsWithChildren<BoxProps>>(({
     const crashAudio = useRef<PositionalAudioImpl>(null!)
     const [maxSpeed] = useStore((s) => [s.vehicleConfig.maxSpeed])
     const { nodes: n, materials: m } = useGLTF('/models/chassis-draco.glb') as ChassisGLTF
+    //
+    // const onCollide = useCallback(
+    //     debounce<(e: CollideEvent) => void>((e) => {
+    //         if (e.body.userData.trigger || !getState().sound || !crashAudio.current) return
+    //         crashAudio.current.setVolume(clamp(e.contact.impactVelocity / 10, 0.2, 1))
+    //         if (!crashAudio.current.isPlaying) crashAudio.current.play()
+    //     }, 200),
+    //     [],
+    // )
 
-    const onCollide = useCallback(
-        debounce<(e: CollideEvent) => void>((e) => {
-            if (e.body.userData.trigger || !getState().sound || !crashAudio.current) return
-            crashAudio.current.setVolume(clamp(e.contact.impactVelocity / 10, 0.2, 1))
-            if (!crashAudio.current.isPlaying) crashAudio.current.play()
-        }, 200),
-        [],
-    )
-
-    const [, api] = useBox(() => ({ mass, args, allowSleep: false, onCollide, ...props }), ref)
+    const [, api] = useBox(() => ({ mass, args, allowSleep: false, collisionResponse: false, ...props }), ref)
 
     useEffect(() => {
         setState({ api })

@@ -18,13 +18,6 @@ import {VehicleAnimator} from './models/vehicle/VehicleAnimator'
 import type {Player} from './GameRoomState'
 import {createRoot} from "react-dom/client";
 
-interface PlayerSlot {
-    initialized: boolean
-    playerId?: string
-
-    data?: Player
-}
-
 const layers = new Layers()
 layers.enable(levelLayer)
 
@@ -46,52 +39,25 @@ export function App(): JSX.Element {
     const [otherPlayersReady, setOtherPlayersReady] = useState(false)
     //console.log(getPlayers().get(mainPlayerId))
 
-    const [otherPlayers, setOtherPlayers] = useState([] as PlayerSlot[])
+    const [otherPlayers, setOtherPlayers] = useState([] as any[])
 
     useLayoutEffect(()=> {
-        // Set empty slots for other players, hoping when bool values are true that they will get rendered
-        if(otherPlayers.length === 0) {
-            let index = 0
-            const _otherPlayers = []
-            while(index < maxPlayerCount - 1) {
-                _otherPlayers[index] = {initialized: false} as PlayerSlot
-                index++
-            }
-            setOtherPlayers(_otherPlayers)
-            setOtherPlayersReady(true)
-        }
-
         // Place players in an available empty slot upon joining
         getPlayers().onAdd = (player: Player, playerId: string) => {
             if(playerId === mainPlayerId) {
                 setMainPlayer(player)
                 setMainPlayerReady(true)
             } else {
-                for(const index in otherPlayers) {
-                    const playerSlot = otherPlayers[index]
-                    if(!playerSlot.initialized) {
-                        playerSlot.data = player
-                        playerSlot.playerId = playerId
-                        playerSlot.initialized = true
-                        otherPlayers[index] = playerSlot
-                        setOtherPlayers(otherPlayers)
-                        console.log(otherPlayers)
-                        break
-                    }
-                }
+                setOtherPlayers([...otherPlayers, {data: player, playerId}])
             }
         }
 
         // Remove player and empty the player slot
         getPlayers().onRemove = (player: Player, playerId: string) => {
-            for(const index in otherPlayers) {
-                if(otherPlayers[index].playerId === playerId) {
-                    otherPlayers[index].initialized = false
-                    delete otherPlayers[index].data
-                    delete otherPlayers[index].playerId
-                    break
-                }
-            }
+            const tmp = [...otherPlayers]
+            const removableIndex = tmp.findIndex((slot=> slot.playerId === playerId))
+            tmp.splice(removableIndex, 1)
+            setOtherPlayers(tmp)
         }
     }, [mainPlayer, otherPlayers])
 
@@ -127,22 +93,18 @@ export function App(): JSX.Element {
                         <Cameras />
                     </Vehicle>): ''
                 }
-
-                { otherPlayersReady? (
+                {
                     otherPlayers.map((element) => {
-                        return element.initialized? (
-                            <VehicleAnimator
-                                key={element.playerId}
-                                playerId={element.playerId}
-                                angularVelocity={[element.data!.angularVelocity.x, element.data!.angularVelocity.y, element.data!.angularVelocity.z]}
-                                position={[element.data!.position.x, element.data!.position.y, element.data!.position.z]}
-                                rotation={[element.data!.rotation.x, element.data!.rotation.y, element.data!.rotation.z]}>
-                                {light && <primitive object={light.target} />}
-                            </VehicleAnimator>
-                        ): ('')
+                        return <VehicleAnimator
+                            key={element.playerId}
+                            playerId={element.playerId}
+                            angularVelocity={[element.data.angularVelocity.x, element.data.angularVelocity.y, element.data.angularVelocity.z]}
+                            position={[element.data.position.x, element.data.position.y, element.data.position.z]}
+                            rotation={[element.data.rotation.x, element.data.rotation.y, element.data.rotation.z]}>
+                            {light && <primitive object={light.target} />}
+                        </VehicleAnimator>
                     })
-                ): ('')}
-
+                }
                 {/*{*/}
                 {/*    gameRoom.state.players.onAdd = (player, playerId) => {*/}
                 {/*    }*/}

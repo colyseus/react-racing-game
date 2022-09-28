@@ -94,8 +94,8 @@ export function VehicleAnimator(props: any) {
 
         // lean chassis
         chassisBody.current!.children[0].rotation.z = MathUtils.lerp(chassisBody.current!.children[0].rotation.z, (-steeringValue * speed) / 200, delta * 4)
-        chassisBody.current!.position.set(player.position.x, player.position.y, player.position.z)
-        chassisBody.current!.children[0].position.set(player.position.x, player.position.y, player.position.z)
+        //chassisBody.current!.position.set(player.position.x, player.position.y, player.position.z)
+        //chassisBody.current!.children[0].position.set(player.position.x, player.position.y, player.position.z)
 
         // Camera sway
         swaySpeed = player.movement.swaySpeed
@@ -115,12 +115,6 @@ export function VehicleAnimator(props: any) {
     return (
         <group>
             <ChassisAnimator ref={chassisBody} {...{ angularVelocity, position, rotation }}>
-                {/*<ToggledAccelerateAudio />*/}
-                <BoostAudio />
-                <BrakeAudio />
-                {/*<ToggledEngineAudio />*/}
-                <HonkAudio />
-                <Boost />
                 {children}
             </ChassisAnimator>
             <>
