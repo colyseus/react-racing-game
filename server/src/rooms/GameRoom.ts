@@ -3,7 +3,7 @@ import { GameRoomState, Player } from "./schema/GameRoomState";
 
 const MAX_PLAYER_COUNT = 20;
 
-const generateRandomInteger = (min, max) => {
+const generateRandomInteger = (min: number, max: number) => {
   return Math.floor(min + Math.random()*(max - min + 1))
 }
 

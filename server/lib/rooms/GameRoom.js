@@ -3,14 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameRoom = void 0;
 const colyseus_1 = require("colyseus");
 const GameRoomState_1 = require("./schema/GameRoomState");
+const MAX_PLAYER_COUNT = 20;
+const generateRandomInteger = (min, max) => {
+    return Math.floor(min + Math.random() * (max - min + 1));
+};
 class GameRoom extends colyseus_1.Room {
     constructor() {
         super(...arguments);
-        this.maxClients = 2;
+        this.maxClients = MAX_PLAYER_COUNT;
     }
     onCreate(options) {
         this.setState(new GameRoomState_1.GameRoomState());
-        this.state.nextSpawnPosition.setValues(-110, 0.75, 210);
         this.onMessage('frameData', (client, data) => {
             const player = this.state.players.get(client.sessionId);
             player.movement.isBoosting = data['isBoosting'];
@@ -24,30 +27,29 @@ class GameRoom extends colyseus_1.Room {
             player.movement.swayTarget = data['swayTarget'];
             player.movement.swayValue = data['swayValue'];
         });
-        // this.onMessage('positioning', (client, data) => {
-        //   const player = this.state.players.get(client.sessionId);
-        //   player.angularVelocity.setValues(data['angularVelocity']['x'], data['angularVelocity']['y'], data['angularVelocity']['z']);
-        //   player.position.setValues(data['position']['x'], data['position']['y'], data['position']['z']);
-        //   player.rotation.setValues(data['rotation']['x'], data['rotation']['y'], data['rotation']['z']);
-        //
-        //   console.log(player.position.toJSON())
-        // })
+        this.onMessage('positionData', (client, data) => {
+            const player = this.state.players.get(client.sessionId);
+            player.position.x = data['x'];
+            player.position.y = data['y'];
+            player.position.z = data['z'];
+        });
     }
     onJoin(client, options) {
         const newPlayer = new GameRoomState_1.Player();
-        newPlayer.angularVelocity.setValues(0, 0, 0);
-        newPlayer.spawnPosition.setObject(this.state.nextSpawnPosition);
-        newPlayer.position.setObject(this.state.nextSpawnPosition);
-        newPlayer.rotation.setValues(0, Math.PI / 2 + 0.35, 0);
+        newPlayer.angularVelocity.x = 0;
+        newPlayer.angularVelocity.y = 0;
+        newPlayer.angularVelocity.z = 0;
+        newPlayer.position.x = -generateRandomInteger(109, 115);
+        newPlayer.position.y = 0.75;
+        newPlayer.position.z = generateRandomInteger(215, 220);
+        newPlayer.rotation.x = 0;
+        newPlayer.rotation.y = Math.PI / 2 + 0.35;
+        newPlayer.rotation.z = 0;
         this.state.players.set(client.sessionId, newPlayer);
         console.log(client.sessionId, "joined!");
-        if (newPlayer.position.x == -110) {
-            this.state.nextSpawnPosition.setValues(-110, 0.75, 220);
-        }
+        client.send("config", { maxPlayerCount: MAX_PLAYER_COUNT });
     }
     onLeave(client, consented) {
-        const player = this.state.players.get(client.sessionId);
-        this.state.nextSpawnPosition.setObject(player.spawnPosition);
         this.state.players.delete(client.sessionId);
         console.log(client.sessionId, "left!");
     }

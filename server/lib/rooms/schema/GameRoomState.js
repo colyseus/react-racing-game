@@ -14,22 +14,6 @@ class Vector3 extends schema_1.Schema {
         this.x = 0;
         this.y = 0;
         this.z = 0;
-        this.getValues = () => {
-            return [this.x, this.y, this.z];
-        };
-        this.setValues = (x_, y_, z_) => {
-            this.x = x_;
-            this.y = y_;
-            this.z = z_;
-        };
-        this.setObject = (instance) => {
-            this.x = instance.x;
-            this.y = instance.y;
-            this.z = instance.z;
-        };
-        this.equal = (x, y, z) => {
-            return this.x == x && this.y == y && this.z == z;
-        };
     }
 }
 __decorate([
@@ -95,7 +79,6 @@ class Player extends schema_1.Schema {
         this.movement = new Movement();
         this.position = new Vector3();
         this.rotation = new Vector3();
-        this.spawnPosition = new Vector3();
     }
 }
 __decorate([
@@ -110,21 +93,14 @@ __decorate([
 __decorate([
     (0, schema_1.type)(Vector3)
 ], Player.prototype, "rotation", void 0);
-__decorate([
-    (0, schema_1.type)(Vector3)
-], Player.prototype, "spawnPosition", void 0);
 exports.Player = Player;
 class GameRoomState extends schema_1.Schema {
     constructor() {
         super(...arguments);
         this.players = new schema_1.MapSchema();
-        this.nextSpawnPosition = new Vector3();
     }
 }
 __decorate([
     (0, schema_1.type)({ map: Player })
 ], GameRoomState.prototype, "players", void 0);
-__decorate([
-    (0, schema_1.type)(Vector3)
-], GameRoomState.prototype, "nextSpawnPosition", void 0);
 exports.GameRoomState = GameRoomState;

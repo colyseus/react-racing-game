@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/colyseus/create-colyseus#readme",
   "devDependencies": {
-    "@colyseus/loadtest": "^0.15.0-preview.0",
-    "@colyseus/testing": "^0.15.0-preview.1",
+    "@colyseus/loadtest": "^0.14.7",
+    "@colyseus/testing": "^0.14.22",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/mocha": "^9.1.1",
@@ -31,9 +31,9 @@
     "typescript": "^4.8.2"
   },
   "dependencies": {
-    "@colyseus/arena": "^0.15.0-preview.1",
-    "@colyseus/monitor": "^0.15.0-preview.1",
-    "colyseus": "^0.15.0-preview.4",
+    "@colyseus/arena": "^0.14.24",
+    "@colyseus/monitor": "^0.14.22",
+    "colyseus": "^0.14.23",
     "cors": "^2.8.5",
     "express": "^4.18.1"
   }

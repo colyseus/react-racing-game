@@ -1,18 +1,15 @@
-import {MathUtils, Vector3} from 'three'
+import {MathUtils} from 'three'
 import {useLayoutEffect} from 'react'
 import {useFrame, useThree} from '@react-three/fiber'
 import type {RaycastVehicleProps, WheelInfoOptions} from '@react-three/cannon'
 import {useRaycastVehicle} from '@react-three/cannon'
 
 import {Dust, Skid} from '../../effects'
-import type {Camera, WheelInfo} from '../../store'
+import type {WheelInfo} from '../../store'
 import {mutation, useStore} from '../../store'
 import {Wheel} from './Wheel'
 import {getPlayers} from '../../network'
 import {ChassisAnimator} from './ChassisAnimator'
-
-const {lerp} = MathUtils
-const v = new Vector3()
 
 type DerivedWheelInfo = WheelInfo & Required<Pick<WheelInfoOptions, 'chassisConnectionPointLocal' | 'isFrontWheel'>>
 
@@ -48,8 +45,6 @@ export function VehicleAnimator(props: any) {
     let i = 0
     let speed = player.movement.speed
     let steeringValue = player.movement.steeringValue
-    let swaySpeed = player.movement.swaySpeed
-    let swayValue = player.movement.swayValue
 
     useFrame((state, delta) => {
         player = getPlayers().get(playerId)
@@ -64,27 +59,18 @@ export function VehicleAnimator(props: any) {
 
         // lean chassis
         chassisBody.current!.children[0].rotation.z = MathUtils.lerp(chassisBody.current!.children[0].rotation.z, (-steeringValue * speed) / 200, delta * 4)
-        chassisBody.current!.position.set(player.position.x, player.position.y, player.position.z)
-        //chassisBody.current!.children[0].position.set(player.position.x, player.position.y, player.position.z)
 
-        // Camera sway
-        swaySpeed = player.movement.swaySpeed
-        // swayTarget = player.movement.swayTarget
-        swayValue = player.movement.swayValue
-        defaultCamera.rotation.z += (Math.sin(state.clock.elapsedTime * swaySpeed * 0.9) / 1000) * swayValue
-        defaultCamera.rotation.x += (Math.sin(state.clock.elapsedTime * swaySpeed) / 1000) * swayValue
+        // Set position from the player state
+        chassisBody.current!.position.set(player.position.x, player.position.y, player.position.z)
 
         // Vibrations
         chassisBody.current!.children[0].rotation.x = (Math.sin(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
         chassisBody.current!.children[0].rotation.z = (Math.cos(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
     })
 
-    // const ToggledAccelerateAudio = useToggle(AccelerateAudio, ['ready', 'sound'])
-    // const ToggledEngineAudio = useToggle(EngineAudio, ['ready', 'sound'])
-
     return (
         <group>
-            <ChassisAnimator playerId={playerId} ref={chassisBody} {...{angularVelocity, position, rotation}}>
+            <ChassisAnimator ref={chassisBody} {...{angularVelocity, position, rotation}}>
                 {children}
             </ChassisAnimator>
             <>
