@@ -1,6 +1,4 @@
-import debounce from 'lodash-es/debounce'
-import clamp from 'lodash-es/clamp'
-import { forwardRef, useRef, useCallback, useEffect, useLayoutEffect } from 'react'
+import { forwardRef, useRef, useEffect, useLayoutEffect } from 'react'
 import { useBox } from '@react-three/cannon'
 import { useGLTF, PositionalAudio } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
@@ -9,12 +7,12 @@ import { Color, Vector3, MathUtils } from 'three'
 import type { PropsWithChildren } from 'react'
 import type { BoxProps } from '@react-three/cannon'
 import type { BoxBufferGeometry, Group, Mesh, MeshStandardMaterial, PositionalAudio as PositionalAudioImpl } from 'three'
-import type { CollideEvent } from '@react-three/cannon'
 
 import { getState, setState, mutation, useStore } from '../../store'
 
 import type { Camera} from '../../store'
 import type {ChassisGLTF} from './Chassis'
+import {getPlayers} from "../../network";
 
 const { lerp } = MathUtils
 
@@ -41,33 +39,27 @@ export const ChassisAnimator = forwardRef<Group, PropsWithChildren<BoxProps>>(({
     const crashAudio = useRef<PositionalAudioImpl>(null!)
     const [maxSpeed] = useStore((s) => [s.vehicleConfig.maxSpeed])
     const { nodes: n, materials: m } = useGLTF('/models/chassis-draco.glb') as ChassisGLTF
-    //
-    // const onCollide = useCallback(
-    //     debounce<(e: CollideEvent) => void>((e) => {
-    //         if (e.body.userData.trigger || !getState().sound || !crashAudio.current) return
-    //         crashAudio.current.setVolume(clamp(e.contact.impactVelocity / 10, 0.2, 1))
-    //         if (!crashAudio.current.isPlaying) crashAudio.current.play()
-    //     }, 200),
-    //     [],
-    // )
 
     const [, api] = useBox(() => ({ mass, args, allowSleep: false, collisionResponse: false, ...props }), ref)
+
+    const { playerId } = props
+    let player = getPlayers().get(playerId)
 
     useEffect(() => {
         setState({ api })
         return () => setState({ api: null })
     }, [api])
 
-    useLayoutEffect(
-        () =>
-            api.velocity.subscribe((velocity) => {
-                const speed = v.set(...velocity).length()
-                const gearPosition = speed / (maxSpeed / gears)
-                const rpmTarget = Math.max(((gearPosition % 1) + Math.log(gearPosition)) / 6, 0)
-                Object.assign(mutation, { rpmTarget, speed, velocity })
-            }),
-        [maxSpeed],
-    )
+    // useLayoutEffect(
+    //     () =>
+    //         api.velocity.subscribe((velocity) => {
+    //             const speed = v.set(...velocity).length()
+    //             const gearPosition = speed / (maxSpeed / gears)
+    //             const rpmTarget = Math.max(((gearPosition % 1) + Math.log(gearPosition)) / 6, 0)
+    //             Object.assign(mutation, { rpmTarget, speed, velocity })
+    //         }),
+    //     [maxSpeed],
+    // )
 
     let camera: Camera
     useFrame((_, delta) => {
@@ -81,6 +73,8 @@ export const ChassisAnimator = forwardRef<Group, PropsWithChildren<BoxProps>>(({
         // if (wheel.current) wheel.current.rotation.z = lerp(wheel.current.rotation.z, controls.left ? -Math.PI : controls.right ? Math.PI : 0, delta)
         needle.current.rotation.y = (mutation.speed / maxSpeed) * -Math.PI * 2 - 0.9
         chassis_1.current.material.color.lerp(c.set(getState().color), 0.1)
+
+        //chassis_1.current.position.set(player.movement.x, player.movement.y, player.movement.z)
     })
 
     return (

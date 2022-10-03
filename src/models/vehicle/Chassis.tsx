@@ -15,6 +15,7 @@ import type { CollideEvent } from '@react-three/cannon'
 import { getState, setState, mutation, useStore } from '../../store'
 
 import type { Camera, Controls } from '../../store'
+import {gameRoom} from "../../network";
 
 const { lerp } = MathUtils
 
@@ -117,6 +118,11 @@ export const Chassis = forwardRef<Group, PropsWithChildren<BoxProps>>(({ args = 
     if (wheel.current) wheel.current.rotation.z = lerp(wheel.current.rotation.z, controls.left ? -Math.PI : controls.right ? Math.PI : 0, delta)
     needle.current.rotation.y = (mutation.speed / maxSpeed) * -Math.PI * 2 - 0.9
     chassis_1.current.material.color.lerp(c.set(getState().color), 0.1)
+
+
+    const _position = new Vector3()
+    chassis_1.current.getWorldPosition(_position)
+    gameRoom.send('positionData', { x: _position.x, y: _position.y, z: _position.z })
   })
 
   return (

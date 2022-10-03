@@ -9,26 +9,6 @@ export class Vector3 extends Schema {
 
   @type("number")
   z = 0;
-
-  getValues = () => {
-    return [this.x, this.y, this.z];
-  }
-
-  setValues = (x_:number, y_:number, z_:number) => {
-    this.x = x_;
-    this.y = y_;
-    this.z = z_;
-  }
-
-  setObject = (instance: Vector3) => {
-    this.x = instance.x;
-    this.y = instance.y;
-    this.z = instance.z;
-  }
-
-  equal = (x:number, y:number, z:number) => {
-    return this.x == x && this.y == y && this.z == z;
-  }
 }
 
 export class Movement extends Schema {

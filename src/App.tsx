@@ -95,12 +95,13 @@ export function App(): JSX.Element {
                 }
                 {
                     otherPlayers.map((element) => {
+                        const player = getPlayers().get(element.playerId)
                         return <VehicleAnimator
                             key={element.playerId}
                             playerId={element.playerId}
-                            angularVelocity={[element.data.angularVelocity.x, element.data.angularVelocity.y, element.data.angularVelocity.z]}
-                            position={[element.data.position.x, element.data.position.y, element.data.position.z]}
-                            rotation={[element.data.rotation.x, element.data.rotation.y, element.data.rotation.z]}>
+                            angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
+                            position={[player.position.x, player.position.y, player.position.z]}
+                            rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
                             {light && <primitive object={light.target} />}
                         </VehicleAnimator>
                     })

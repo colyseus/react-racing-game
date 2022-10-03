@@ -26,16 +26,30 @@ export class GameRoom extends Room<GameRoomState> {
       player.movement.swaySpeed = data['swaySpeed'];
       player.movement.swayTarget = data['swayTarget'];
       player.movement.swayValue = data['swayValue'];
+    })
 
-      player.position.setValues(data['position']['x'], data['position']['y'], data['position']['z']);
+    this.onMessage('positionData', (client, data) => {
+      const player = this.state.players.get(client.sessionId);
+      player.position.x = data['x'];
+      player.position.y = data['y'];
+      player.position.z = data['z'];
     })
   }
 
   onJoin (client: Client, options: any) {
     const newPlayer = new Player();
-    newPlayer.angularVelocity.setValues(0, 0, 0);
-    newPlayer.position.setValues(-generateRandomInteger(109, 115), 0.75, generateRandomInteger(215, 220));
-    newPlayer.rotation.setValues(0, Math.PI / 2 + 0.35, 0);
+    newPlayer.angularVelocity.x = 0;
+    newPlayer.angularVelocity.y = 0;
+    newPlayer.angularVelocity.z = 0;
+
+    newPlayer.position.x = -generateRandomInteger(109, 115);
+    newPlayer.position.y = 0.75;
+    newPlayer.position.z = generateRandomInteger(215, 220);
+
+    newPlayer.rotation.x = 0;
+    newPlayer.rotation.y = Math.PI / 2 + 0.35;
+    newPlayer.rotation.z = 0;
+
     this.state.players.set(client.sessionId, newPlayer);
     console.log(client.sessionId, "joined!");
 
@@ -43,8 +57,6 @@ export class GameRoom extends Room<GameRoomState> {
   }
 
   onLeave (client: Client, consented: boolean) {
-    const player = this.state.players.get(client.sessionId);
-    this.state.nextSpawnPosition.setObject(player.spawnPosition);
     this.state.players.delete(client.sessionId);
     console.log(client.sessionId, "left!");
   }

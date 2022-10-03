@@ -42,7 +42,7 @@ export function Vehicle(props: any) {
     wheels,
     wheelInfos,
   }
-  const [ref, api] = useRaycastVehicle(() => raycast, null, [wheelInfo])
+  const [, api] = useRaycastVehicle(() => raycast, null, [wheelInfo])
 
   useLayoutEffect(() => api.sliding.subscribe((sliding) => (mutation.sliding = sliding)), [api])
 
@@ -102,6 +102,7 @@ export function Vehicle(props: any) {
     // lean chassis
     chassisBody.current!.children[0].rotation.z = MathUtils.lerp(chassisBody.current!.children[0].rotation.z, (-steeringValue * speed) / 200, delta * 4)
 
+
     // Camera sway
     swaySpeed = isBoosting ? 60 : 30
     swayTarget = isBoosting ? (speed / maxSpeed) * 8 : (speed / maxSpeed) * 2
@@ -116,8 +117,6 @@ export function Vehicle(props: any) {
     const _position = new Vector3()
     chassisBody.current!.getWorldPosition(_position)
 
-
-
     gameRoom.send('frameData', {
       'boost': isBoosting,
       'boostValue': mutation.boost,
@@ -128,8 +127,7 @@ export function Vehicle(props: any) {
       'steeringValue': steeringValue,
       'swaySpeed': swaySpeed,
       'swayTarget': swayTarget,
-      'swayValue': swayValue,
-      'position': { x: _position.x, y: _position.y, z: _position.z }
+      'swayValue': swayValue
     })
   })
 
