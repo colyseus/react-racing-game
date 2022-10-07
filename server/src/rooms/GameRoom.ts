@@ -14,25 +14,11 @@ export class GameRoom extends Room<GameRoomState> {
   onCreate (options: any) {
     this.setState(new GameRoomState());
 
-    this.onMessage('frameData', (client, data) => {
-      const player = this.state.players.get(client.sessionId);
-      player.movement.isBoosting = data['isBoosting'];
-      player.movement.boostValue = data['boostValue'];
-      player.movement.brake = data['brake'];
-      player.movement.engineValue = data['engineValue'];
-      player.movement.forward = data['forward'];
-      player.movement.speed = data['speed'];
-      player.movement.steeringValue = data['steeringValue'];
-      player.movement.swaySpeed = data['swaySpeed'];
-      player.movement.swayTarget = data['swayTarget'];
-      player.movement.swayValue = data['swayValue'];
-    })
-
     this.onMessage('positionData', (client, data) => {
       const player = this.state.players.get(client.sessionId);
-      player.position.x = data['x'];
-      player.position.y = data['y'];
-      player.position.z = data['z'];
+      player.position.x = data['position']['x'];
+      player.position.y = data['position']['y'];
+      player.position.z = data['position']['z'];
     })
   }
 

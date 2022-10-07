@@ -1,21 +1,19 @@
-import {MathUtils, Vector3} from 'three'
-import {useLayoutEffect} from 'react'
-import {useFrame, useThree} from '@react-three/fiber'
-import type {RaycastVehicleProps, WheelInfoOptions} from '@react-three/cannon'
-import {useRaycastVehicle} from '@react-three/cannon'
+import { MathUtils, Vector3 } from 'three'
+import { useLayoutEffect } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import type { RaycastVehicleProps, WheelInfoOptions } from '@react-three/cannon'
+import { useRaycastVehicle } from '@react-three/cannon'
 
-import {AccelerateAudio, Boost, BoostAudio, BrakeAudio, Dust, EngineAudio, HonkAudio, Skid} from '../../effects'
-import type {Camera, Controls, WheelInfo} from '../../store'
-import {getState, mutation, useStore} from '../../store'
-import {useToggle} from '../../useToggle'
-import {Chassis} from './Chassis'
-import {Wheel} from './Wheel'
-import {gameRoom} from '../../network'
+import { AccelerateAudio, Boost, BoostAudio, BrakeAudio, Dust, EngineAudio, HonkAudio, Skid } from '../../effects'
+import type { Camera, Controls, WheelInfo } from '../../store'
+import { getState, mutation, useStore } from '../../store'
+import { useToggle } from '../../useToggle'
+import { Chassis } from './Chassis'
+import { Wheel } from './Wheel'
 
-const {lerp} = MathUtils
+const { lerp } = MathUtils
 const v = new Vector3()
 
-// type VehicleProps = PropsWithChildren<Pick<BoxProps, 'angularVelocity' | 'position' | 'rotation'>>
 type DerivedWheelInfo = WheelInfo & Required<Pick<WheelInfoOptions, 'chassisConnectionPointLocal' | 'isFrontWheel'>>
 
 export function Vehicle(props: any) {
@@ -99,7 +97,6 @@ export function Vehicle(props: any) {
         // lean chassis
         chassisBody.current!.children[0].rotation.z = MathUtils.lerp(chassisBody.current!.children[0].rotation.z, (-steeringValue * speed) / 200, delta * 4)
 
-
         // Camera sway
         swaySpeed = isBoosting ? 60 : 30
         swayTarget = isBoosting ? (speed / maxSpeed) * 8 : (speed / maxSpeed) * 2
@@ -110,22 +107,6 @@ export function Vehicle(props: any) {
         // Vibrations
         chassisBody.current!.children[0].rotation.x = (Math.sin(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
         chassisBody.current!.children[0].rotation.z = (Math.cos(state.clock.getElapsedTime() * 20) * (speed / maxSpeed)) / 100
-
-        const _position = new Vector3()
-        chassisBody.current!.getWorldPosition(_position)
-
-        gameRoom.send('frameData', {
-            'boost': isBoosting,
-            'boostValue': mutation.boost,
-            'brake': controls.brake,
-            'engineValue': engineValue,
-            'forward': controls.forward,
-            'speed': speed,
-            'steeringValue': steeringValue,
-            'swaySpeed': swaySpeed,
-            'swayTarget': swayTarget,
-            'swayValue': swayValue
-        })
     })
 
     const ToggledAccelerateAudio = useToggle(AccelerateAudio, ['ready', 'sound'])

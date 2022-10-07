@@ -47,7 +47,7 @@
     "vite-react-jsx": "^1.1.2"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc && vite build",
     "serve": "vite preview",
     "eslint": "eslint --cache src",

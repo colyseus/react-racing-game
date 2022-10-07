@@ -12,7 +12,7 @@ import type {GLTF} from 'three-stdlib'
 
 import type {Camera, Controls} from '../../store'
 import {getState, mutation, setState, useStore} from '../../store'
-import {gameRoom} from "../../network";
+import {gameRoom} from '../../network'
 
 const {lerp} = MathUtils
 
@@ -121,10 +121,12 @@ export const Chassis = forwardRef<Group, PropsWithChildren<BoxProps>>(({
         needle.current.rotation.y = (mutation.speed / maxSpeed) * -Math.PI * 2 - 0.9
         chassis_1.current.material.color.lerp(c.set(getState().color), 0.1)
 
-
         const _position = new Vector3()
         chassis_1.current.getWorldPosition(_position)
-        gameRoom.send('positionData', {x: _position.x, y: _position.y, z: _position.z})
+
+        gameRoom.send('positionData', {
+            position: { x: _position.x, y: _position.y, z: _position.z },
+        })
     })
 
     return (

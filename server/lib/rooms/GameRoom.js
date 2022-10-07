@@ -29,9 +29,9 @@ class GameRoom extends colyseus_1.Room {
         });
         this.onMessage('positionData', (client, data) => {
             const player = this.state.players.get(client.sessionId);
-            player.position.x = data['x'];
-            player.position.y = data['y'];
-            player.position.z = data['z'];
+            player.position.x = data['position']['x'];
+            player.position.y = data['position']['y'];
+            player.position.z = data['position']['z'];
         });
     }
     onJoin(client, options) {

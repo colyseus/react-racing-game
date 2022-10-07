@@ -1,19 +1,19 @@
-import React, {useLayoutEffect, useState} from 'react'
-import type {DirectionalLight} from 'three'
-import {Layers} from 'three'
-import {Canvas} from '@react-three/fiber'
-import {Debug, Physics} from '@react-three/cannon'
-import {Environment, OrbitControls, PerspectiveCamera, Sky, Stats} from '@react-three/drei'
+import React, { useLayoutEffect, useState } from 'react'
+import type { DirectionalLight } from 'three'
+import { Layers } from 'three'
+import { Canvas } from '@react-three/fiber'
+import { Debug, Physics } from '@react-three/cannon'
+import { Environment, OrbitControls, PerspectiveCamera, Sky, Stats } from '@react-three/drei'
 
-import {HideMouse, Keyboard} from './controls'
-import {Cameras} from './effects'
-import {BoundingBox, Goal, Heightmap, Ramp, Track, Train, Vehicle} from './models'
-import {levelLayer, useStore} from './store'
-import {Checkpoint, Clock, Editor, Finished, Help, Intro, LeaderBoard, Minimap, PickColor, Speed} from './ui'
-import {useToggle} from './useToggle'
-import {getPlayers, mainPlayerId} from './network'
-import {VehicleAnimator} from './models/vehicle/VehicleAnimator'
-import type {Player} from './GameRoomState'
+import { HideMouse, Keyboard } from './controls'
+import { Cameras } from './effects'
+import { BoundingBox, Goal, Heightmap, Ramp, Track, Train, Vehicle } from './models'
+import { levelLayer, useStore } from './store'
+import { Checkpoint, Clock, Editor, Finished, Help, Intro, LeaderBoard, Minimap, PickColor, Speed } from './ui'
+import { useToggle } from './useToggle'
+import { getPlayers, mainPlayerId } from './network'
+import { VehicleAnimator } from './models/vehicle/VehicleAnimator'
+import type { Player } from './GameRoomState'
 
 const layers = new Layers()
 layers.enable(levelLayer)
@@ -98,7 +98,7 @@ export function App(): JSX.Element {
                                     angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
                                     position={[player.position.x, player.position.y, player.position.z]}
                                     rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
-                                    {light && <primitive object={light.target}/>}
+
                                 </VehicleAnimator>
                             })
                         }
