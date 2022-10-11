@@ -14,24 +14,32 @@ export class GameRoom extends Room<GameRoomState> {
   onCreate (options: any) {
     this.setState(new GameRoomState());
 
-    this.onMessage('positionData', (client, data) => {
+    this.onMessage('movementData', (client, data) => {
       const player = this.state.players.get(client.sessionId);
       player.position.x = data['position']['x'];
       player.position.y = data['position']['y'];
       player.position.z = data['position']['z'];
+
+      player.rotation.w = data['rotation']['w'];
+      player.rotation.x = data['rotation']['x'];
+      player.rotation.y = data['rotation']['y'];
+      player.rotation.z = data['rotation']['z'];
+    })
+
+    this.onMessage('started', (client, message) => {
+      const player = this.state.players.get(client.sessionId)
+      player.started = true;
     })
   }
 
   onJoin (client: Client, options: any) {
     const newPlayer = new Player();
-    newPlayer.angularVelocity.x = 0;
-    newPlayer.angularVelocity.y = 0;
-    newPlayer.angularVelocity.z = 0;
 
     newPlayer.position.x = -generateRandomInteger(109, 115);
     newPlayer.position.y = 0.75;
     newPlayer.position.z = generateRandomInteger(215, 220);
 
+    newPlayer.rotation.w = 0.5731936903702084;
     newPlayer.rotation.x = 0;
     newPlayer.rotation.y = Math.PI / 2 + 0.35;
     newPlayer.rotation.z = 0;

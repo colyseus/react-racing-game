@@ -82,9 +82,9 @@ export function App(): JSX.Element {
                         {
                             mainPlayerReady ? (<Vehicle
                                 key={mainPlayerId}
-                                angularVelocity={[mainPlayer.angularVelocity.x, mainPlayer.angularVelocity.y, mainPlayer.angularVelocity.z]}
+                                angularVelocity={[0, 0, 0]}
                                 position={[mainPlayer.position.x, mainPlayer.position.y, mainPlayer.position.z]}
-                                rotation={[mainPlayer.rotation.x, mainPlayer.rotation.y, mainPlayer.rotation.z]}>
+                                rotation={[0, Math.PI / 2 + 0.33, 0]}>
                                 {light && <primitive object={light.target}/>}
                                 <Cameras/>
                             </Vehicle>) : ''
@@ -95,10 +95,9 @@ export function App(): JSX.Element {
                                 return <VehicleAnimator
                                     key={element.playerId}
                                     playerId={element.playerId}
-                                    angularVelocity={[player.angularVelocity.x, player.angularVelocity.y, player.angularVelocity.z]}
+                                    angularVelocity={[0, 0, 0]}
                                     position={[player.position.x, player.position.y, player.position.z]}
-                                    rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
-
+                                    rotation={[0, Math.PI / 2 + 0.33, 0]}>
                                 </VehicleAnimator>
                             })
                         }

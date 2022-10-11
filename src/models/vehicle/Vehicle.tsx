@@ -1,5 +1,5 @@
 import { MathUtils, Vector3 } from 'three'
-import { useLayoutEffect } from 'react'
+import {useLayoutEffect, useState} from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { RaycastVehicleProps, WheelInfoOptions } from '@react-three/cannon'
 import { useRaycastVehicle } from '@react-three/cannon'
@@ -10,6 +10,7 @@ import { getState, mutation, useStore } from '../../store'
 import { useToggle } from '../../useToggle'
 import { Chassis } from './Chassis'
 import { Wheel } from './Wheel'
+import {gameRoom, getPlayers} from "../../network";
 
 const { lerp } = MathUtils
 const v = new Vector3()
@@ -39,6 +40,8 @@ export function Vehicle(props: any) {
     }
     const [, api] = useRaycastVehicle(() => raycast, null, [wheelInfo])
 
+    const [movementStarted, setMovementStarted] = useState(false)
+
     useLayoutEffect(() => api.sliding.subscribe((sliding) => (mutation.sliding = sliding)), [api])
 
     let camera: Camera
@@ -58,6 +61,11 @@ export function Vehicle(props: any) {
         editor = getState().editor
         controls = getState().controls
         speed = mutation.speed
+
+        if(!movementStarted && controls.forward) {
+            gameRoom.send('started', {})
+            setMovementStarted(true)
+        }
 
         isBoosting = controls.boost && mutation.boost > 0
 

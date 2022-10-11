@@ -1,6 +1,9 @@
-import { MapSchema, Schema, Context, type } from "@colyseus/schema";
+import { MapSchema, Schema, type } from "@colyseus/schema";
 
-export class Vector3 extends Schema {
+export class AxisData extends Schema {
+  @type("number")
+  w = 0;
+  
   @type("number")
   x = 0;
 
@@ -12,14 +15,17 @@ export class Vector3 extends Schema {
 }
 
 export class Player extends Schema {
-  @type(Vector3)
-  angularVelocity: Vector3 = new Vector3();
+  @type("boolean")
+  started = false;
 
-  @type(Vector3)
-  position: Vector3 = new Vector3();
+  @type("string")
+  color = "yellow";
 
-  @type(Vector3)
-  rotation: Vector3 = new Vector3();
+  @type(AxisData)
+  position: AxisData = new AxisData();
+
+  @type(AxisData)
+  rotation: AxisData = new AxisData();
 }
 
 export class GameRoomState extends Schema {
