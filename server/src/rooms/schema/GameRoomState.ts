@@ -15,9 +15,6 @@ export class AxisData extends Schema {
 }
 
 export class Player extends Schema {
-  @type("boolean")
-  started = false;
-
   @type("string")
   color = "yellow";
 

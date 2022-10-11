@@ -25,11 +25,6 @@ export class GameRoom extends Room<GameRoomState> {
       player.rotation.y = data['rotation']['y'];
       player.rotation.z = data['rotation']['z'];
     })
-
-    this.onMessage('started', (client, message) => {
-      const player = this.state.players.get(client.sessionId)
-      player.started = true;
-    })
   }
 
   onJoin (client: Client, options: any) {

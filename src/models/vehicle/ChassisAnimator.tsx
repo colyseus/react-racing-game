@@ -52,10 +52,8 @@ export const ChassisAnimator = forwardRef<Group, PropsWithChildren<BoxProps>>(({
         chassis_1.current.material.color.lerp(c.set(getState().color), 0.1)
 
         // Set synchronized player position
-        if(player.started) {
-            api.position.set(player.position.x, player.position.y, player.position.z)
-            api.quaternion.set(player.rotation.x, player.rotation.y, player.rotation.z, player.rotation.w)
-        }
+        api.position.set(player.position.x, player.position.y, player.position.z)
+        api.quaternion.set(player.rotation.x, player.rotation.y, player.rotation.z, player.rotation.w)
     })
 
     return (
