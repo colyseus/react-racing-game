@@ -3,7 +3,7 @@ import { useGLTF, useTexture } from '@react-three/drei'
 import 'inter-ui'
 import './styles.css'
 import { App } from './App'
-import { initializeNetwork } from './network'
+import {gameRoom, initializeNetwork, mainPlayerId} from './network'
 
 useTexture.preload('/textures/heightmap_1024.png')
 useGLTF.preload('/models/track-draco.glb')
@@ -14,6 +14,7 @@ const defaultStyle = { color: 'green', paddingLeft: '2%' }
 const errorStyle = { color: 'red', paddingLeft: '2%' }
 
 const root = createRoot(document.getElementById('root')!)
+
 
 root.render(
     <div style={defaultStyle}>

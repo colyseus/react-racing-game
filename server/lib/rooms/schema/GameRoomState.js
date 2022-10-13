@@ -33,15 +33,11 @@ exports.AxisData = AxisData;
 class Player extends schema_1.Schema {
     constructor() {
         super(...arguments);
-        this.started = false;
         this.color = "yellow";
         this.position = new AxisData();
         this.rotation = new AxisData();
     }
 }
-__decorate([
-    (0, schema_1.type)("boolean")
-], Player.prototype, "started", void 0);
 __decorate([
     (0, schema_1.type)("string")
 ], Player.prototype, "color", void 0);

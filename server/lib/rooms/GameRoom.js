@@ -24,10 +24,6 @@ class GameRoom extends colyseus_1.Room {
             player.rotation.y = data['rotation']['y'];
             player.rotation.z = data['rotation']['z'];
         });
-        this.onMessage('started', (client, message) => {
-            const player = this.state.players.get(client.sessionId);
-            player.started = true;
-        });
     }
     onJoin(client, options) {
         const newPlayer = new GameRoomState_1.Player();

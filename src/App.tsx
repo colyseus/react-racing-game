@@ -58,7 +58,7 @@ export function App(): JSX.Element {
 
     return (
         <Intro>
-            <Canvas key={`${dpr}${shadows}`} dpr={[1, dpr]} shadows={shadows} camera={{position: [0, 5, 15], fov: 50}}>
+            <Canvas key={`${dpr}${shadows}`} dpr={[1, dpr]} shadows={shadows}>
                 <fog attach="fog" args={['white', 0, 500]}/>
                 <Sky sunPosition={[100, 10, 100]} distance={1000}/>
                 <ambientLight layers={layers} intensity={0.1}/>
@@ -80,14 +80,16 @@ export function App(): JSX.Element {
                          defaultContactMaterial={{contactEquationRelaxation: 4, friction: 1e-3}}>
                     <ToggledDebug scale={1.0001} color="white">
                         {
-                            mainPlayerReady ? (<Vehicle
-                                key={mainPlayerId}
-                                angularVelocity={[0, 0, 0]}
-                                position={[mainPlayer.position.x, mainPlayer.position.y, mainPlayer.position.z]}
-                                rotation={[0, Math.PI / 2 + 0.33, 0]}>
-                                {light && <primitive object={light.target}/>}
-                                <Cameras/>
-                            </Vehicle>) : ''
+                            mainPlayerReady? (
+                                <Vehicle
+                                    key={mainPlayerId}
+                                    angularVelocity={[0, 0, 0]}
+                                    position={[mainPlayer.position.x, mainPlayer.position.y, mainPlayer.position.z]}
+                                    rotation={[0, Math.PI / 2 + 0.33, 0]}>
+                                    {light && <primitive object={light.target}/>}
+                                    <Cameras/>
+                                </Vehicle>
+                            ): ''
                         }
                         {
                             otherPlayers.map((element) => {
