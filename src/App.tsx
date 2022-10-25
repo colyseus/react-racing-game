@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import type { DirectionalLight } from 'three'
 import { Layers } from 'three'
 import { Canvas } from '@react-three/fiber'
@@ -11,7 +11,7 @@ import { BoundingBox, Goal, Heightmap, Ramp, Track, Train, Vehicle } from './mod
 import { levelLayer, useStore } from './store'
 import { Checkpoint, Clock, Editor, Finished, Help, Intro, LeaderBoard, Minimap, PickColor, Speed } from './ui'
 import { useToggle } from './useToggle'
-import {getPlayers, mainPlayerId, maxPlayerCount} from './network'
+import { getPlayers, mainPlayerId } from './network'
 import { VehicleAnimator } from './models/vehicle/VehicleAnimator'
 import type { Player } from './GameRoomState'
 

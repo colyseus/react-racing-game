@@ -87,7 +87,7 @@ export class GameRoom extends Room<GameRoomState> {
 
     player.playerPresent = false;
 
-    delete this.state.indexes.get(client.sessionId);
+    this.state.indexes.delete(client.sessionId);
     console.log(client.sessionId, "left!");
   }
 
