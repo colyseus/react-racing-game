@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, {useEffect, useLayoutEffect, useState} from 'react'
 import type { DirectionalLight } from 'three'
 import { Layers } from 'three'
 import { Canvas } from '@react-three/fiber'
@@ -11,14 +11,14 @@ import { BoundingBox, Goal, Heightmap, Ramp, Track, Train, Vehicle } from './mod
 import { levelLayer, useStore } from './store'
 import { Checkpoint, Clock, Editor, Finished, Help, Intro, LeaderBoard, Minimap, PickColor, Speed } from './ui'
 import { useToggle } from './useToggle'
-import { getPlayers, mainPlayerId } from './network'
+import {getPlayers, mainPlayerId, maxPlayerCount} from './network'
 import { VehicleAnimator } from './models/vehicle/VehicleAnimator'
 import type { Player } from './GameRoomState'
 
 const layers = new Layers()
 layers.enable(levelLayer)
 
-export function App(): JSX.Element {
+function App(): JSX.Element {
     const [light, setLight] = useState<DirectionalLight | null>(null)
     const [actions, dpr, editor, shadows] = useStore((s) => [s.actions, s.dpr, s.editor, s.shadows])
     const {onCheckpoint, onFinish, onStart} = actions
@@ -37,23 +37,16 @@ export function App(): JSX.Element {
     const [otherPlayers, setOtherPlayers] = useState([] as any[])
 
     useLayoutEffect(() => {
-        // Place players in an available empty slot upon joining
-        getPlayers().onAdd = (player: Player, playerId: string) => {
-            if (playerId === mainPlayerId) {
+        getPlayers().forEach((player: Player, index: string)  => {
+            if (index === mainPlayerId) {
                 setMainPlayer(player)
                 setMainPlayerReady(true)
-            } else {
-                setOtherPlayers([...otherPlayers, {data: player, playerId}])
+            } else if(otherPlayers.length < getPlayers().size - 1) {
+                otherPlayers.push({data: player, playerId: index})
+                setOtherPlayers(otherPlayers)
             }
-        }
+        })
 
-        // Remove player and empty the player slot
-        getPlayers().onRemove = (player: Player, playerId: string) => {
-            const tmp = [...otherPlayers]
-            const removableIndex = tmp.findIndex((slot => slot.playerId === playerId))
-            tmp.splice(removableIndex, 1)
-            setOtherPlayers(tmp)
-        }
     }, [mainPlayer, otherPlayers])
 
     return (
@@ -135,3 +128,5 @@ export function App(): JSX.Element {
         </Intro>
     )
 }
+
+export default React.memo(App)

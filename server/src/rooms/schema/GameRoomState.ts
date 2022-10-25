@@ -1,22 +1,31 @@
-import { MapSchema, Schema, type } from "@colyseus/schema";
+import { ArraySchema, MapSchema, Schema, type } from "@colyseus/schema";
 
 export class AxisData extends Schema {
   @type("number")
-  w = 0;
+  w: number = 0;
   
   @type("number")
-  x = 0;
+  x: number = 0;
 
   @type("number")
-  y = 0;
+  y: number = 0;
 
   @type("number")
-  z = 0;
+  z: number = 0;
 }
 
 export class Player extends Schema {
+  @type("boolean")
+  playerPresent = false;
+
+  @type("number")
+  timeSpent = 0;
+
+  @type("number")
+  timeCompleted = Infinity;
+
   @type("string")
-  color = "yellow";
+  sessionId = "";
 
   @type(AxisData)
   position: AxisData = new AxisData();
@@ -25,8 +34,12 @@ export class Player extends Schema {
   rotation: AxisData = new AxisData();
 }
 
+
 export class GameRoomState extends Schema {
 
-  @type({map: Player})
+  @type({ map: Player })
   players = new MapSchema<Player>();
+
+  @type({ map: "string" })
+  indexes = new MapSchema<string>();
 }

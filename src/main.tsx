@@ -2,8 +2,9 @@ import { createRoot } from 'react-dom/client'
 import { useGLTF, useTexture } from '@react-three/drei'
 import 'inter-ui'
 import './styles.css'
-import { App } from './App'
-import {gameRoom, initializeNetwork, mainPlayerId} from './network'
+import App  from './App'
+import { initializeNetwork, setMainPlayerId } from './network'
+import type { Room } from 'colyseus.js'
 
 useTexture.preload('/textures/heightmap_1024.png')
 useGLTF.preload('/models/track-draco.glb')
@@ -22,8 +23,13 @@ root.render(
     </div>)
 
 initializeNetwork()
-    .then(() => {
-        root.render(<App />)
+    .then((gameRoom: Room) => {
+        gameRoom.state.indexes.onAdd = (index: string, sessionId: string) => {
+            if(sessionId == gameRoom.sessionId) {
+                setMainPlayerId(index)
+                root.render(<App />)
+            }
+        }
     })
     .catch(e => {
         console.error(e)

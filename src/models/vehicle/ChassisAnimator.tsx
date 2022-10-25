@@ -51,7 +51,7 @@ export const ChassisAnimator = forwardRef<Group, PropsWithChildren<BoxProps>>(({
         // Set synchronized player movement for the frame
         api.position.set(player.position.x, player.position.y, player.position.z)
         api.quaternion.set(player.rotation.x, player.rotation.y, player.rotation.z, player.rotation.w)
-        // chassis_1.current.parent!.position.lerp(new Vector3(player.position.x, player.position.y, player.position.z), 1)
+        // chassis_1.current.parent!.position.set(player.position.x, player.position.y, player.position.z)
         // ref_.current!.position.lerp(new Vector3(player.position.x, player.position.y, player.position.z), 0.1)
     })
 
