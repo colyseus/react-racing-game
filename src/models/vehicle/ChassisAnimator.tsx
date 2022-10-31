@@ -1,12 +1,11 @@
 import type { PropsWithChildren } from 'react'
-import { forwardRef, useEffect, useRef } from 'react'
+import {forwardRef, useEffect, useRef} from 'react'
 import type { BoxProps } from '@react-three/cannon'
 import { useBox } from '@react-three/cannon'
 import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import type { BoxBufferGeometry, Group, Mesh, MeshStandardMaterial } from 'three'
 
-import { setState } from '../../store'
 import { getPlayers } from '../../network'
 import type { Player } from '../../GameRoomState'
 import type { ChassisGLTF } from './Chassis'
@@ -38,21 +37,17 @@ export const ChassisAnimator = forwardRef<Group, PropsWithChildren<BoxProps>>(({
 
     const [, api] = useBox(() => ({mass, args, allowSleep: false, collisionResponse: false, ...props}), ref)
 
-    useEffect(() => {
-        setState({api})
-        return () => setState({api: null})
-    }, [api])
-
-    const player: Player = getPlayers().get((children as any[])[1])
+    const playerId = (children as any[])[1]
+    const player: Player = getPlayers().get(playerId)
 
     useFrame((_, delta) => {
         chassis_1.current.material.color.set('maroon')
 
         // Set synchronized player movement for the frame
-        api.position.set(player.position.x, player.position.y, player.position.z)
-        api.quaternion.set(player.rotation.x, player.rotation.y, player.rotation.z, player.rotation.w)
-        // chassis_1.current.parent!.position.set(player.position.x, player.position.y, player.position.z)
-        // ref_.current!.position.lerp(new Vector3(player.position.x, player.position.y, player.position.z), 0.1)
+        if(player.playerPresent) {
+            api.quaternion.set(player.rotation.x, player.rotation.y, player.rotation.z, player.rotation.w)
+            api.position.set(player.position.x, player.position.y, player.position.z)
+        }
     })
 
     return (

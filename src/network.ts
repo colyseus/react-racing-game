@@ -1,8 +1,8 @@
 import type { Room } from 'colyseus.js'
 import { Client } from 'colyseus.js'
 
-const COLYSEUS_HOST = 'ws://localhost:2567'
-// const COLYSEUS_HOST = 'wss://kpdkye.api-colyseus.com'
+// const COLYSEUS_HOST = 'ws://localhost:2567'
+const COLYSEUS_HOST = 'wss://kpdkye.api-colyseus.com'
 const GAME_ROOM  =  'game_room'
 
 export const client: Client = new Client(COLYSEUS_HOST)
@@ -19,6 +19,7 @@ export const joinGame = async (): Promise<Room> => {
     })
 
     return gameRoom
+
 }
 
 export const initializeNetwork = async (): Promise<Room> => {

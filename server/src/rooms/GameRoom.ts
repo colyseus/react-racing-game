@@ -30,11 +30,11 @@ export class GameRoom extends Room<GameRoomState> {
     for(let index = 0; index < MAX_PLAYER_COUNT; index++) {
       const newPlayer = new Player();
 
-      newPlayer.position.x = -generateRandomInteger(109, 115);
+      newPlayer.position.x = -110;
       newPlayer.position.y = 0.75;
-      newPlayer.position.z = generateRandomInteger(215, 220);
+      newPlayer.position.z = 210;
 
-      newPlayer.rotation.w = 0.5731936903702084;
+      newPlayer.rotation.w = 0; //0.5731936903702084;
       newPlayer.rotation.x = 0;
       newPlayer.rotation.y = Math.PI / 2 + 0.35;
       newPlayer.rotation.z = 0;
@@ -63,6 +63,9 @@ export class GameRoom extends Room<GameRoomState> {
         this.state.indexes.set(client.sessionId, key);
         cursor.sessionId = client.sessionId;
         cursor.playerPresent = true;
+
+        cursor.position.x = -110;
+        cursor.position.z = 214;
         break;
       }
     }
@@ -76,11 +79,11 @@ export class GameRoom extends Room<GameRoomState> {
     const player = this.state.players.get(index);
 
     // Reset dummy player properties
-    player.position.x = -generateRandomInteger(109, 115);
+    player.position.x = -110;
     player.position.y = 0.75;
-    player.position.z = generateRandomInteger(215, 220);
+    player.position.z = 210;
 
-    player.rotation.w = 0.5731936903702084;
+    player.rotation.w = 0;//0.5731936903702084;
     player.rotation.x = 0;
     player.rotation.y = Math.PI / 2 + 0.35;
     player.rotation.z = 0;

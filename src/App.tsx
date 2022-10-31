@@ -92,7 +92,7 @@ function App(): JSX.Element {
                                     playerId={element.playerId}
                                     angularVelocity={[0, 0, 0]}
                                     position={[player.position.x, player.position.y, player.position.z]}
-                                    rotation={[0, Math.PI / 2 + 0.33, 0]}>
+                                    rotation={[player.rotation.x, player.rotation.y, player.rotation.z]}>
                                 </VehicleAnimator>
                             })
                         }
@@ -129,4 +129,4 @@ function App(): JSX.Element {
     )
 }
 
-export default React.memo(App)
+export default App

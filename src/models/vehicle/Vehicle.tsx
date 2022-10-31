@@ -53,9 +53,6 @@ export function Vehicle(props: any) {
     let swayTarget = 0
     let swayValue = 0
 
-    // Set camera's local position to avoid camera positioning upon re-rendering
-    // defaultCamera.position.set(0, 1.25015867, -4.998622866)
-
     useFrame((state, delta) => {
         camera = getState().camera
         editor = getState().editor
