@@ -18,6 +18,6 @@
     "types": ["vite/client"],
     "incremental": true
   },
-  "include": ["./src"],
+  "include": ["./src", "./server/src/rooms/schema/GameRoomState.ts"],
   "exclude": ["node_modues"],
 }
