@@ -6,6 +6,7 @@ import { Debug, Physics } from '@react-three/cannon'
 import { Environment, OrbitControls, PerspectiveCamera, Sky, Stats } from '@react-three/drei'
 
 import { HideMouse, Keyboard } from './controls'
+import { Rank } from './ui/Rank'
 import { Cameras } from './effects'
 import { BoundingBox, Goal, Heightmap, Ramp, Track, Train, Vehicle } from './models'
 import { levelLayer, useStore } from './store'
@@ -37,15 +38,17 @@ function App(): JSX.Element {
     const [otherPlayers, setOtherPlayers] = useState([] as any[])
 
     useLayoutEffect(() => {
-        getPlayers().forEach((player: Player, index: string)  => {
-            if (index === mainPlayerId) {
-                setMainPlayer(player)
-                setMainPlayerReady(true)
-            } else if(otherPlayers.length < getPlayers().size - 1) {
-                otherPlayers.push({data: player, playerId: index})
-                setOtherPlayers(otherPlayers)
-            }
-        })
+        setTimeout(() => {
+            getPlayers().forEach((player: Player, index: string)  => {
+                if (index === mainPlayerId) {
+                    setMainPlayer(player)
+                    setMainPlayerReady(true)
+                } else if(otherPlayers.length < getPlayers().size - 1) {
+                    otherPlayers.push({data: player, playerId: index})
+                    setOtherPlayers(otherPlayers)
+                }
+            })
+        }, 1000)
 
     }, [mainPlayer, otherPlayers])
 
@@ -117,6 +120,7 @@ function App(): JSX.Element {
             <Clock/>
             <ToggledEditor/>
             <ToggledFinished/>
+            <Rank/>
             <Help/>
             <Speed/>
             <ToggledStats/>

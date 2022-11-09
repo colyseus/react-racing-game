@@ -19,10 +19,7 @@ export class Player extends Schema {
   playerPresent = false;
 
   @type("number")
-  timeSpent = 0;
-
-  @type("number")
-  timeCompleted = Infinity;
+  completedTime = Infinity;
 
   @type("string")
   sessionId = "";

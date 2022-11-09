@@ -68,6 +68,7 @@ export const booleans = {
   leaderboard: false,
   map: true,
   pickcolor: false,
+  rank: false,
   ready: false,
   shadows: true,
   stats: false,

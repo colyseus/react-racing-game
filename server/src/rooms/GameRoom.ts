@@ -15,10 +15,6 @@ type MovementData = {
   rotation: AxisData;
 }
 
-const generateRandomInteger = (min: number, max: number) => {
-  return Math.floor(min + Math.random()*(max - min + 1))
-}
-
 export class GameRoom extends Room<GameRoomState> {
 
   maxClients = MAX_PLAYER_COUNT;
@@ -34,7 +30,7 @@ export class GameRoom extends Room<GameRoomState> {
       newPlayer.position.y = 0.75;
       newPlayer.position.z = 210;
 
-      newPlayer.rotation.w = 0; //0.5731936903702084;
+      newPlayer.rotation.w = 0;
       newPlayer.rotation.x = 0;
       newPlayer.rotation.y = Math.PI / 2 + 0.35;
       newPlayer.rotation.z = 0;
@@ -53,6 +49,12 @@ export class GameRoom extends Room<GameRoomState> {
       player.rotation.x = data.rotation.x;
       player.rotation.y = data.rotation.y;
       player.rotation.z = data.rotation.z;
+    })
+
+    this.onMessage('etc', (client, data) => {
+      const index = this.state.indexes.get(client.sessionId);
+      const player = this.state.players.get(index);
+      player.completedTime = data["value"]? data["value"]: Infinity;
     })
   }
 
@@ -83,7 +85,7 @@ export class GameRoom extends Room<GameRoomState> {
     player.position.y = 0.75;
     player.position.z = 210;
 
-    player.rotation.w = 0;//0.5731936903702084;
+    player.rotation.w = 0;
     player.rotation.x = 0;
     player.rotation.y = Math.PI / 2 + 0.35;
     player.rotation.z = 0;

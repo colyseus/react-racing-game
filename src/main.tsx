@@ -24,10 +24,10 @@ root.render(
 
 initializeNetwork()
     .then((gameRoom: Room) => {
+        root.render(<App />)
         gameRoom.state.indexes.onAdd = (index: string, sessionId: string) => {
             if(sessionId == gameRoom.sessionId) {
                 setMainPlayerId(index)
-                root.render(<App />)
             }
         }
     })
