@@ -16,10 +16,7 @@ export class AxisData extends Schema {
 
 export class Player extends Schema {
   @type('number')
-  timeSpent = 0
-
-  @type('number')
-  timeCompleted = Infinity
+  etc = Infinity
 
   @type('string')
   sessionId = ''
@@ -34,7 +31,4 @@ export class Player extends Schema {
 export class GameRoomState extends Schema {
   @type({ map: Player })
   players = new MapSchema<Player>()
-
-  @type({ map: 'string' })
-  indexes = new MapSchema<string>()
 }

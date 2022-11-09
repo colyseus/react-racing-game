@@ -13,6 +13,7 @@ import { Checkpoint, Clock, Editor, Finished, Help, Intro, LeaderBoard, Minimap,
 import { useToggle } from './useToggle'
 import { gameRoom } from './network/api'
 import { OpponentListComponent } from './network/OpponentListComponent'
+import { Rank } from './ui/Rank'
 
 const layers = new Layers()
 layers.enable(levelLayer)
@@ -83,6 +84,7 @@ function App(): JSX.Element {
       </Canvas>
       <Clock />
       <ToggledEditor />
+      <Rank />
       <ToggledFinished />
       <Help />
       <Speed />

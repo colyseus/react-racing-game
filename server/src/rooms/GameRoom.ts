@@ -41,6 +41,11 @@ export class GameRoom extends Room<GameRoomState> {
       player.rotation.y = data.rotation.y
       player.rotation.z = data.rotation.z
     })
+
+    this.onMessage('etc', (client, data) => {
+      const player = this.state.players.get(client.sessionId)
+      player.etc = data['value']
+    })
   }
 
   onJoin(client: Client, options: any) {
