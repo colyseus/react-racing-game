@@ -190,8 +190,8 @@ const useStoreImpl = create<IState>((set: SetState<IState>, get: GetState<IState
       const { finished, start, _start } = get()
       if (start && !finished) {
         set({ finished: Math.max(Date.now() - start, 0) })
+        gameRoom.send('etc', { value: (Date.now() - _start) / 1000 })
       }
-      gameRoom.send('etc', { value: (Date.now() - _start) / 1000 })
     },
     onStart: () => {
       set({ finished: 0, start: Date.now(), _start: Date.now() })
