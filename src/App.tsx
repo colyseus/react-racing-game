@@ -9,7 +9,7 @@ import { HideMouse, Keyboard } from './controls'
 import { Cameras } from './effects'
 import { BoundingBox, Goal, Heightmap, Ramp, Track, Train, Vehicle } from './models'
 import { levelLayer, useStore } from './store'
-import { Checkpoint, Clock, Editor, Finished, Help, Intro, LeaderBoard, Minimap, PickColor, Speed } from './ui'
+import { Clock, Editor, Help, Intro, LeaderBoard, Minimap, PickColor, Speed } from './ui'
 import { useToggle } from './useToggle'
 import { gameRoom } from './network/api'
 import { OpponentListComponent } from './network/OpponentListComponent'
@@ -23,10 +23,8 @@ function App(): JSX.Element {
   const [actions, dpr, editor, shadows] = useStore((s) => [s.actions, s.dpr, s.editor, s.shadows])
   const { onCheckpoint, onFinish, onStart } = actions
 
-  const ToggledCheckpoint = useToggle(Checkpoint, 'checkpoint')
   const ToggledDebug = useToggle(Debug, 'debug')
   const ToggledEditor = useToggle(Editor, 'editor')
-  const ToggledFinished = useToggle(Finished, 'finished')
   const ToggledMap = useToggle(Minimap, 'map')
   const ToggledOrbitControls = useToggle(OrbitControls, 'editor')
   const ToggledStats = useToggle(Stats, 'stats')
@@ -85,11 +83,9 @@ function App(): JSX.Element {
       <Clock />
       <ToggledEditor />
       <Rank />
-      <ToggledFinished />
       <Help />
       <Speed />
       <ToggledStats />
-      <ToggledCheckpoint />
       <LeaderBoard />
       <PickColor />
       <HideMouse />

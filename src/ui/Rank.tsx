@@ -29,6 +29,7 @@ export function Rank(): JSX.Element {
     <>
       <div className="rank">
         <div className="popup-content">
+          <div className="mainPlayerInfo">Your Player ID: {gameRoom.sessionId}</div>
           <table>
             <thead>
               <tr>
@@ -43,7 +44,7 @@ export function Rank(): JSX.Element {
                   <tr className={score.playerId === gameRoom.sessionId ? 'mainPlayer' : ''} key={score.rank}>
                     <td>{score.rank}</td>
                     <td>{score.playerId}</td>
-                    <td>{score.time}</td>
+                    <td>{typeof score.time == 'number' ? score.time.toFixed(2) : score.time}</td>
                   </tr>
                 )
               })}

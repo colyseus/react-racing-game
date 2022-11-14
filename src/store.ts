@@ -8,6 +8,7 @@ import type { Group } from 'three'
 import type { GetState, SetState, StateSelector } from 'zustand'
 
 import { keys } from './keys'
+import { gameRoom } from './network/api'
 
 export const angularVelocity = [0, 0.5, 0] as const
 export const cameras = ['DEFAULT', 'FIRST_PERSON', 'BIRD_EYE'] as const
@@ -140,6 +141,7 @@ export interface IState extends BaseState {
   bestCheckpoint: number
   camera: Camera
   chassisBody: RefObject<Group>
+  opponentChassisBody: RefObject<Group>
   checkpoint: number
   color: string
   controls: Controls
@@ -152,6 +154,7 @@ export interface IState extends BaseState {
   session: Session | null
   set: Setter
   start: number
+  _start: number
   vehicleConfig: VehicleConfig
   wheelInfo: WheelInfo
   wheels: [RefObject<Group>, RefObject<Group>, RefObject<Group>, RefObject<Group>]
@@ -184,20 +187,21 @@ const useStoreImpl = create<IState>((set: SetState<IState>, get: GetState<IState
       }
     },
     onFinish: () => {
-      const { finished, start } = get()
+      const { finished, start, _start } = get()
       if (start && !finished) {
         set({ finished: Math.max(Date.now() - start, 0) })
       }
+      gameRoom.send('etc', { value: (Date.now() - _start) / 1000 })
     },
     onStart: () => {
-      set({ finished: 0, start: Date.now() })
+      set({ finished: 0, start: Date.now(), _start: Date.now() })
     },
     reset: () => {
       mutation.boost = maxBoost
 
       set((state) => {
         state.api?.angularVelocity.set(...angularVelocity)
-        //state.api?.position.set(...position)
+        // state.api?.position.set(...position)
         state.api?.rotation.set(...rotation)
         state.api?.velocity.set(0, 0, 0)
 
@@ -214,6 +218,7 @@ const useStoreImpl = create<IState>((set: SetState<IState>, get: GetState<IState
     bestCheckpoint: 0,
     camera: cameras[0],
     chassisBody: createRef<Group>(),
+    opponentChassisBody: createRef<Group>(),
     checkpoint: 0,
     color: '#FFFF00',
     controls,
@@ -226,6 +231,7 @@ const useStoreImpl = create<IState>((set: SetState<IState>, get: GetState<IState
     session: null,
     set,
     start: 0,
+    _start: 0,
     vehicleConfig,
     wheelInfo,
     wheels: [createRef<Group>(), createRef<Group>(), createRef<Group>(), createRef<Group>()],

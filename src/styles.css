@@ -528,3 +528,9 @@ button {
   color: yellow;
   font-weight: 800;
 }
+
+.mainPlayerInfo {
+  color: greenyellow;
+  padding-bottom: 5%;
+  font-size: 140%;
+}
