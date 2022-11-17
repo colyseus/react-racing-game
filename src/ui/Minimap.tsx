@@ -1,11 +1,20 @@
 import { OrthographicCamera as OrthographicCameraComponent, useFBO, useTexture } from '@react-three/drei'
 import { createPortal, useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { RefObject } from 'react'
+import React, { createRef, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Box3, Matrix4, Scene, Vector2, Vector3 } from 'three'
 
-import type { OrthographicCamera, Sprite, WebGLRenderTarget } from 'three'
+import type { OrthographicCamera, WebGLRenderTarget, Sprite } from 'three'
 
 import { useStore, levelLayer } from '../store'
+import { gameRoom } from '../network/api'
+
+interface OpponentCursor {
+  id: string
+  mat: Matrix4
+  player: RefObject<Sprite>
+  vec: Vector3
+}
 
 const m = new Matrix4()
 const playerPosition = new Vector3()
@@ -64,7 +73,7 @@ export function Minimap({ size = 200 }): JSX.Element {
   const miniMapCamera = useRef<OrthographicCamera>(null)
   const [virtualScene] = useState(() => new Scene())
   const mask = useTexture('textures/mask.svg')
-  const cursor = useTexture('textures/cursor.svg')
+  const cursorTexture = useTexture('textures/cursor.svg')
   const buffer = useFBO(size * 2, size * 2)
   const {
     gl,
@@ -76,6 +85,41 @@ export function Minimap({ size = 200 }): JSX.Element {
   const chassisBody = useStore((state) => state.chassisBody)
   const screenPosition = useMemo(() => new Vector3(width / -2 - size / -2 + 30, height / -2 - size / -2 + 30, 0), [height, width, size])
 
+  const [opponentCursors, setOpponentCursors] = useState([] as OpponentCursor[])
+
+  function useGetOpponentCursors() {
+    const cursors = [] as OpponentCursor[]
+
+    gameRoom.state.players.forEach((element, id) => {
+      if (id !== gameRoom.sessionId) {
+        const player = createRef<Sprite>()
+        const vec = new Vector3()
+        const mat = new Matrix4()
+        cursors.push({ id, mat, player, vec })
+      }
+    })
+    return cursors
+  }
+
+  useLayoutEffect(() => {
+    let timeout: number
+
+    gameRoom.state.players.onAdd = (_, key) => {
+      // use timeout to prevent re-rendering multiple times
+      window.clearTimeout(timeout)
+      timeout = window.setTimeout(() => {
+        // skip if current/local player
+        if (key === gameRoom.sessionId) {
+          return
+        }
+
+        setOpponentCursors(useGetOpponentCursors())
+      }, 50)
+    }
+
+    gameRoom.state.players.onRemove = (element) => setOpponentCursors(opponentCursors.filter((p) => p.id !== element.sessionId))
+  }, [])
+
   useFrame(() => {
     if (!miniMap.current || !miniMapCamera.current) return
     gl.autoClear = true
@@ -85,6 +129,21 @@ export function Minimap({ size = 200 }): JSX.Element {
 
     m.copy(camera.matrix).invert()
     miniMap.current.quaternion.setFromRotationMatrix(m)
+
+    for (const cursor of opponentCursors) {
+      if (cursor.player.current) {
+        const player = gameRoom.state.players.get(cursor.id)
+        cursor.mat.copy(camera.matrix).invert()
+        miniMap.current.quaternion.setFromRotationMatrix(cursor.mat)
+        cursor.vec.subVectors(new Vector3(player?.position.x, player?.position.y, player?.position.z), levelCenter)
+        cursor.player.current.quaternion.setFromRotationMatrix(cursor.mat)
+        cursor.player.current.position.set(
+          screenPosition.x + (cursor.vec.x / levelDimensions.x) * size,
+          screenPosition.y - (cursor.vec.z / levelDimensions.z) * size,
+          0,
+        )
+      }
+    }
 
     if (chassisBody.current && player.current) {
       v.subVectors(chassisBody.current.getWorldPosition(playerPosition), levelCenter)
@@ -106,8 +165,15 @@ export function Minimap({ size = 200 }): JSX.Element {
           <sprite ref={miniMap} position={screenPosition} scale={[size, size, 1]}>
             <spriteMaterial map={buffer.texture} alphaMap={mask} />
           </sprite>
+          {opponentCursors.map((cursor) => {
+            return (
+              <sprite key={cursor.id} ref={cursor.player} position={screenPosition} scale={[size / 20, size / 20, 1]}>
+                <spriteMaterial color="red" alphaMap={cursorTexture} />
+              </sprite>
+            )
+          })}
           <sprite ref={player} position={screenPosition} scale={[size / 20, size / 20, 1]}>
-            <spriteMaterial color="white" alphaMap={cursor} />
+            <spriteMaterial color="white" alphaMap={cursorTexture} />
           </sprite>
         </>,
         virtualScene,

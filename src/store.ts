@@ -201,11 +201,10 @@ const useStoreImpl = create<IState>((set: SetState<IState>, get: GetState<IState
 
       set((state) => {
         state.api?.angularVelocity.set(...angularVelocity)
-        // state.api?.position.set(...position)
         state.api?.rotation.set(...rotation)
         state.api?.velocity.set(0, 0, 0)
 
-        return { ...state, finished: 0, start: 0 }
+        return { ...state }
       })
     },
   }
