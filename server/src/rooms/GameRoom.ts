@@ -13,6 +13,7 @@ type AxisData = {
 type MovementData = {
   position: AxisData
   rotation: AxisData
+  direction: AxisData
 }
 
 const generateRandomInteger = (min: number, max: number) => {
@@ -40,6 +41,10 @@ export class GameRoom extends Room<GameRoomState> {
       player.rotation.x = data.rotation.x
       player.rotation.y = data.rotation.y
       player.rotation.z = data.rotation.z
+
+      player.direction.x = data.direction.x
+      player.direction.y = data.direction.y
+      player.direction.z = data.direction.z
     })
 
     this.onMessage('etc', (client, data) => {

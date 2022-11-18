@@ -7,12 +7,15 @@ import { Box3, Matrix4, Scene, Vector2, Vector3 } from 'three'
 import type { OrthographicCamera, WebGLRenderTarget, Sprite } from 'three'
 
 import { useStore, levelLayer } from '../store'
+import type { Room } from 'colyseus.js'
 import { gameRoom } from '../network/api'
+import type { Player } from '../network/api'
 
 interface OpponentCursor {
   id: string
   mat: Matrix4
   player: RefObject<Sprite>
+  rot: Vector2
   vec: Vector3
 }
 
@@ -85,31 +88,32 @@ export function Minimap({ size = 200 }): JSX.Element {
   const chassisBody = useStore((state) => state.chassisBody)
   const screenPosition = useMemo(() => new Vector3(width / -2 - size / -2 + 30, height / -2 - size / -2 + 30, 0), [height, width, size])
 
-  const [opponentCursors, setOpponentCursors] = useState([] as OpponentCursor[])
+  const room: Room = gameRoom
+  const [opponentCursors, setOpponentCursors] = useState(useGetOpponentCursors())
 
   function useGetOpponentCursors() {
     const cursors = [] as OpponentCursor[]
 
-    gameRoom.state.players.forEach((element, id) => {
-      if (id !== gameRoom.sessionId) {
+    room.state.players.forEach((element: Player, id: string) => {
+      if (id !== room.sessionId) {
         const player = createRef<Sprite>()
-        const vec = new Vector3()
         const mat = new Matrix4()
-        cursors.push({ id, mat, player, vec })
+        const rot = new Vector2()
+        const vec = new Vector3()
+        cursors.push({ id, mat, player, rot, vec })
       }
     })
     return cursors
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     let timeout: number
-
-    gameRoom.state.players.onAdd = (_, key) => {
+    room.state.players.onAdd = (_: Player, key: string) => {
       // use timeout to prevent re-rendering multiple times
       window.clearTimeout(timeout)
       timeout = window.setTimeout(() => {
         // skip if current/local player
-        if (key === gameRoom.sessionId) {
+        if (key === room.sessionId) {
           return
         }
 
@@ -117,8 +121,8 @@ export function Minimap({ size = 200 }): JSX.Element {
       }, 50)
     }
 
-    gameRoom.state.players.onRemove = (element) => setOpponentCursors(opponentCursors.filter((p) => p.id !== element.sessionId))
-  }, [])
+    room.state.players.onRemove = (element: Player) => setOpponentCursors(opponentCursors.filter((p) => p.id !== element.sessionId))
+  }, [room])
 
   useFrame(() => {
     if (!miniMap.current || !miniMapCamera.current) return
@@ -132,9 +136,8 @@ export function Minimap({ size = 200 }): JSX.Element {
 
     for (const cursor of opponentCursors) {
       if (cursor.player.current) {
-        const player = gameRoom.state.players.get(cursor.id)
+        const player = room.state.players.get(cursor.id)
         cursor.mat.copy(camera.matrix).invert()
-        miniMap.current.quaternion.setFromRotationMatrix(cursor.mat)
         cursor.vec.subVectors(new Vector3(player?.position.x, player?.position.y, player?.position.z), levelCenter)
         cursor.player.current.quaternion.setFromRotationMatrix(cursor.mat)
         cursor.player.current.position.set(
@@ -142,6 +145,8 @@ export function Minimap({ size = 200 }): JSX.Element {
           screenPosition.y - (cursor.vec.z / levelDimensions.z) * size,
           0,
         )
+        cursor.rot.set(player.direction.x, player.direction.z)
+        cursor.player.current.material.rotation = Math.PI / 2 - cursor.rot.angle()
       }
     }
 

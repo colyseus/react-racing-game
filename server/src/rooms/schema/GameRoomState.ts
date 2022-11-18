@@ -26,6 +26,9 @@ export class Player extends Schema {
 
   @type(AxisData)
   rotation: AxisData = new AxisData()
+
+  @type(AxisData)
+  direction: AxisData = new AxisData()
 }
 
 export class GameRoomState extends Schema {
