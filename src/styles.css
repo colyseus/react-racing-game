@@ -506,3 +506,31 @@ button {
     opacity: 0;
   }
 }
+
+/* Rank */
+
+.rank {
+  position: absolute;
+  top: 60px;
+  right: 60px;
+}
+
+.rank table th {
+  padding-right: 40px;
+}
+
+.rank table td {
+  padding-right: 40px;
+  text-align: center;
+}
+
+.rank .mainPlayer {
+  color: yellow;
+  font-weight: 800;
+}
+
+.mainPlayerInfo {
+  color: greenyellow;
+  padding-bottom: 5%;
+  font-size: 140%;
+}

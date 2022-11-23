@@ -9,10 +9,11 @@ import { HideMouse, Keyboard } from './controls'
 import { Cameras } from './effects'
 import { BoundingBox, Goal, Heightmap, Ramp, Track, Train, Vehicle } from './models'
 import { levelLayer, useStore } from './store'
-import { Checkpoint, Clock, Editor, Finished, Help, Intro, LeaderBoard, Minimap, PickColor, Speed } from './ui'
+import { Checkpoint, Clock, Editor, Help, Intro, LeaderBoard, Minimap, PickColor, Speed } from './ui'
 import { useToggle } from './useToggle'
 import { gameRoom } from './network/api'
 import { OpponentListComponent } from './network/OpponentListComponent'
+import { Rank } from './ui/Rank'
 
 const layers = new Layers()
 layers.enable(levelLayer)
@@ -22,13 +23,12 @@ function App(): JSX.Element {
   const [actions, dpr, editor, shadows] = useStore((s) => [s.actions, s.dpr, s.editor, s.shadows])
   const { onCheckpoint, onFinish, onStart } = actions
 
-  const ToggledCheckpoint = useToggle(Checkpoint, 'checkpoint')
+  // const ToggledCheckpoint = useToggle(Checkpoint, 'checkpoint')  We won't be using this functionality in this tutorial
   const ToggledDebug = useToggle(Debug, 'debug')
   const ToggledEditor = useToggle(Editor, 'editor')
-  const ToggledFinished = useToggle(Finished, 'finished')
   const ToggledMap = useToggle(Minimap, 'map')
   const ToggledOrbitControls = useToggle(OrbitControls, 'editor')
-  const ToggledStats = useToggle(Stats, 'stats')
+  // const ToggledStats = useToggle(Stats, 'stats')  We won't be using this functionality in this tutorial
 
   const room = gameRoom
   const currentPlayer = room.state.players.get(room.sessionId)!
@@ -78,17 +78,18 @@ function App(): JSX.Element {
         </Physics>
         <Track />
         <Environment files="textures/dikhololo_night_1k.hdr" />
+
+          {/*<ToggledCheckPoint/> We won't be using this functionality in this tutorial*/}
         <ToggledMap />
         <ToggledOrbitControls />
       </Canvas>
       <Clock />
       <ToggledEditor />
-      <ToggledFinished />
+      <Rank />
       <Help />
       <Speed />
-      <ToggledStats />
-      <ToggledCheckpoint />
-      <LeaderBoard />
+      {/*<ToggledStats /> We won't be using this functionality in this tutorial*/}
+      {/*<LeaderBoard /> We won't be using this functionality in this tutorial*/}
       <PickColor />
       <HideMouse />
       <Keyboard />

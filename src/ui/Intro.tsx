@@ -40,18 +40,7 @@ export function Intro({ children }: { children: ReactNode }): JSX.Element {
                   (<a className="start-link" href="#" onClick={() => setClicked(true)}>{ 'Click to start'}</a>)
               }
             </p>
-
           </div>
-          {session?.user?.aud !== 'authenticated' ? (
-            <Auth />
-          ) : (
-            <div>
-              Hello {session.user.user_metadata.full_name}
-              <button className="logout" onClick={unAuthenticateUser}>
-                Logout
-              </button>{' '}
-            </div>
-          )}
         </div>
         <Footer
           date="2. June"

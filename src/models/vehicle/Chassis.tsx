@@ -121,13 +121,15 @@ export const Chassis = forwardRef<Group, PropsWithChildren<BoxProps>>(({ args = 
       chassis_1.current.getWorldPosition(_position)
 
       const _rotation = new Quaternion()
-      // chassis_1.current.parent!.getWorldQuaternion(_rotation)
-
       chassis_1.current.getWorldQuaternion(_rotation)
+
+      const _worldDirection = new Vector3()
+      chassis_1.current.getWorldDirection(_worldDirection)
 
       gameRoom.send('movementData', {
         position: { x: _position.x, y: _position.y, z: _position.z },
         rotation: { w: _rotation.w, x: _rotation.x, y: _rotation.y, z: _rotation.z },
+        direction: { x: _worldDirection.x, y: _worldDirection.y, z: _worldDirection.z },
       })
     }
   })

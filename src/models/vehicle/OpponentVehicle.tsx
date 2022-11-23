@@ -10,7 +10,7 @@ type DerivedWheelInfo = WheelInfo & Required<Pick<WheelInfoOptions, 'chassisConn
 
 export function OpponentVehicle(props: any) {
   const { player, angularVelocity, children, position, rotation } = props
-  const [chassisBody, vehicleConfig, wheelInfo, wheels] = useStore((s) => [s.chassisBody, s.vehicleConfig, s.wheelInfo, s.wheels])
+  const [chassisBody, vehicleConfig, wheelInfo, wheels] = useStore((s) => [s.opponentChassisBody, s.vehicleConfig, s.wheelInfo, s.wheels])
   const { back, front, height, width } = vehicleConfig
 
   const wheelInfos = wheels.map((_, index): DerivedWheelInfo => {
