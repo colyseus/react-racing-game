@@ -1,30 +1,23 @@
 import { Room, Client } from 'colyseus'
-import { GameRoomState, Player } from './schema/GameRoomState'
+import { MyRoomState, Player, AxisData } from './schema/MyRoomState'
 
 const MAX_PLAYER_COUNT = 10
 
-type AxisData = {
-  w: number
-  x: number
-  y: number
-  z: number
-}
-
 type MovementData = {
   position: AxisData
-  rotation: AxisData
   direction: AxisData
+  rotation: AxisData
 }
 
 const generateRandomInteger = (min: number, max: number) => {
   return Math.floor(min + Math.random() * (max - min + 1))
 }
 
-export class GameRoom extends Room<GameRoomState> {
+export class MyRoom extends Room<MyRoomState> {
   maxClients = MAX_PLAYER_COUNT
 
   onCreate(options: any) {
-    this.setState(new GameRoomState())
+    this.setState(new MyRoomState())
 
     this.onMessage('movementData', (client, data: MovementData) => {
       const player = this.state.players.get(client.sessionId)

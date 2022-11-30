@@ -2,9 +2,6 @@ import { MapSchema, Schema, type } from '@colyseus/schema'
 
 export class AxisData extends Schema {
   @type('number')
-  w: number = 0
-
-  @type('number')
   x: number = 0
 
   @type('number')
@@ -12,6 +9,9 @@ export class AxisData extends Schema {
 
   @type('number')
   z: number = 0
+
+  @type('number')
+  w: number = 0 // 'w' is only used for rotation
 }
 
 export class Player extends Schema {
@@ -31,7 +31,7 @@ export class Player extends Schema {
   direction: AxisData = new AxisData()
 }
 
-export class GameRoomState extends Schema {
+export class MyRoomState extends Schema {
   @type({ map: Player })
   players = new MapSchema<Player>()
 }
