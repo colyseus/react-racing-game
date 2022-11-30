@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Player } from '../../server/src/rooms/schema/GameRoomState'
+import type { Player } from '../../server/src/rooms/schema/MyRoomState'
 import { gameRoom } from '../network/api'
 
 type Score = {

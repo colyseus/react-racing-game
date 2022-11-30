@@ -1,4 +1,4 @@
-import type { Room } from 'colyseus.js'
+import type { Room} from 'colyseus.js'
 import { Client } from 'colyseus.js'
 import type { MyRoomState, Player } from '../../server/src/rooms/schema/MyRoomState'
 
